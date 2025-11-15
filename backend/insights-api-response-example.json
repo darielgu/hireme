@@ -1,0 +1,296 @@
+{
+  "topics": [
+    "System Design",
+    "Distributed Systems",
+    "Database Optimization",
+    "API Design",
+    "Scalability",
+    "Cloud Architecture"
+  ],
+  "interviewerIntel": {
+    "yearsOfExperience": "8+ years",
+    "technicalSpecialties": "Backend Systems, Cloud Architecture",
+    "predictedQuestionAreas": "System Design, Scalability",
+    "backgroundSummary": "Senior Engineer at Tech Corp"
+  },
+  "fitScore": {
+    "score": 78,
+    "skillsGaps": "Kubernetes, Advanced AWS Services",
+    "recommendedImprovements": "Study cloud deployment patterns and container orchestration"
+  },
+  "companyResearch": {
+    "companyValues": "Innovation, Reliability, Impact",
+    "hiringStyle": "Technical depth + Problem-solving skills",
+    "cultureSummary": "Fast-paced, collaborative, growth-focused",
+    "interviewPatterns": "45 min technical + 15 min behavioral"
+  },
+  "studyPlan": [
+    {
+      "day": 1,
+      "title": "Arrays + Strings",
+      "description": "Master fundamental array and string manipulation techniques",
+      "leetcodeQuestions": [
+        {
+          "title": "Two Sum",
+          "difficulty": "Easy"
+        },
+        {
+          "title": "Valid Parentheses",
+          "difficulty": "Easy"
+        },
+        {
+          "title": "Longest Substring Without Repeating Characters",
+          "difficulty": "Medium"
+        }
+      ],
+      "resources": [
+        "LeetCode Array Problems",
+        "Python Algorithms Guide"
+      ]
+    },
+    {
+      "day": 2,
+      "title": "System Design Basics",
+      "description": "Understand the fundamentals of scalable system design",
+      "leetcodeQuestions": [
+        {
+          "title": "Design a URL Shortener",
+          "difficulty": "Medium"
+        },
+        {
+          "title": "Design a Cache System",
+          "difficulty": "Medium"
+        }
+      ],
+      "resources": [
+        "System Design Primer",
+        "Design Pattern Videos"
+      ]
+    },
+    {
+      "day": 3,
+      "title": "Database & Scaling",
+      "description": "Learn database optimization and horizontal scaling strategies",
+      "leetcodeQuestions": [
+        {
+          "title": "Database Query Optimization",
+          "difficulty": "Hard"
+        },
+        {
+          "title": "Distributed Cache Design",
+          "difficulty": "Hard"
+        }
+      ],
+      "resources": [
+        "PostgreSQL Documentation",
+        "Scaling Databases Course"
+      ]
+    },
+    {
+      "day": 4,
+      "title": "API Design Patterns",
+      "description": "Master RESTful API design and best practices",
+      "leetcodeQuestions": [
+        {
+          "title": "Design Rate Limiter",
+          "difficulty": "Medium"
+        },
+        {
+          "title": "Design API Gateway",
+          "difficulty": "Hard"
+        }
+      ],
+      "resources": [
+        "REST API Best Practices",
+        "API Design Guide"
+      ]
+    },
+    {
+      "day": 5,
+      "title": "Distributed Systems",
+      "description": "Dive deep into distributed systems concepts",
+      "leetcodeQuestions": [
+        {
+          "title": "Design Distributed Task Queue",
+          "difficulty": "Hard"
+        },
+        {
+          "title": "Consensus Algorithm Implementation",
+          "difficulty": "Hard"
+        }
+      ],
+      "resources": [
+        "Distributed Systems Notes",
+        "Consensus Algorithms"
+      ]
+    },
+    {
+      "day": 6,
+      "title": "Mock Interview 1",
+      "description": "Full-length mock interview simulation",
+      "leetcodeQuestions": [
+        {
+          "title": "Design Social Network Feed",
+          "difficulty": "Hard"
+        },
+        {
+          "title": "Design Real-Time Notification System",
+          "difficulty": "Hard"
+        }
+      ],
+      "resources": [
+        "Mock Interview Template",
+        "Evaluation Rubric"
+      ]
+    },
+    {
+      "day": 7,
+      "title": "Final Review & Tips",
+      "description": "Review key concepts and interview preparation tips",
+      "leetcodeQuestions": [
+        {
+          "title": "High-Frequency Interview Questions",
+          "difficulty": "Medium"
+        }
+      ],
+      "resources": [
+        "Quick Reference Guide",
+        "Last-Minute Tips"
+      ]
+    }
+  ],
+  "practiceQuestions": [
+    {
+      "id": "1",
+      "category": "System Design",
+      "difficulty": "Hard",
+      "estimatedTime": 45,
+      "title": "Design a highly scalable URL shortener service",
+      "description": "You need to design a URL shortening service like bit.ly. Handle millions of users and provide analytics.",
+      "keyDiscussionPoints": [
+        "Horizontal scaling across multiple regions",
+        "Cache strategy with Redis",
+        "Database optimization for lookups",
+        "Collision handling for short URLs"
+      ]
+    },
+    {
+      "id": "2",
+      "category": "Scalability",
+      "difficulty": "Hard",
+      "estimatedTime": 50,
+      "title": "How would you handle 10 million concurrent users?",
+      "description": "Design an architecture that can support 10 million concurrent users with minimal latency.",
+      "keyDiscussionPoints": [
+        "Load balancing strategies",
+        "Database replication and sharding",
+        "Cache layers and CDN",
+        "Rate limiting and throttling"
+      ]
+    },
+    {
+      "id": "3",
+      "category": "Database Optimization",
+      "difficulty": "Medium",
+      "estimatedTime": 30,
+      "title": "Explain your approach to database sharding",
+      "description": "Discuss strategies for horizontal partitioning of database data.",
+      "keyDiscussionPoints": [
+        "Shard key selection",
+        "Consistent hashing",
+        "Cross-shard queries",
+        "Rebalancing strategies"
+      ]
+    },
+    {
+      "id": "4",
+      "category": "System Design",
+      "difficulty": "Hard",
+      "estimatedTime": 45,
+      "title": "Design a real-time notification system",
+      "description": "Build a system that delivers notifications in real-time to millions of users.",
+      "keyDiscussionPoints": [
+        "Message queue architecture",
+        "WebSocket implementation",
+        "Fan-out patterns",
+        "Delivery guarantees"
+      ]
+    },
+    {
+      "id": "5",
+      "category": "Architecture",
+      "difficulty": "Medium",
+      "estimatedTime": 35,
+      "title": "How do you ensure system reliability and uptime?",
+      "description": "Discuss strategies for maintaining high availability and disaster recovery.",
+      "keyDiscussionPoints": [
+        "Redundancy and failover",
+        "Health checks and monitoring",
+        "Automated recovery",
+        "Data backup strategies"
+      ]
+    },
+    {
+      "id": "6",
+      "category": "System Design",
+      "difficulty": "Hard",
+      "estimatedTime": 60,
+      "title": "Design Social Network Feed",
+      "description": "Design the feed system for a social network like Facebook or Twitter.",
+      "keyDiscussionPoints": [
+        "Fan-out on write vs fan-out on read",
+        "Ranking and sorting algorithms",
+        "Timeline storage",
+        "Cache invalidation"
+      ]
+    }
+  ],
+  "peopleInRole": [
+    {
+      "name": "Alex Chen",
+      "role": "Senior Backend Engineer",
+      "yearsInRole": 3,
+      "background": "Started as a Full Stack Developer, specialized in Backend",
+      "interviewTip": "Focus on system design fundamentals and practice explaining your architecture decisions clearly.",
+      "waysToConnect": [
+        "LinkedIn Message",
+        "Email",
+        "Company Alumni Network"
+      ]
+    },
+    {
+      "name": "Jordan Martinez",
+      "role": "Staff Engineer",
+      "yearsInRole": 8,
+      "background": "Tech Lead focused on distributed systems and scalability",
+      "interviewTip": "Be prepared to discuss real production challenges. They ask about trade-offs and pragmatic solutions.",
+      "waysToConnect": [
+        "LinkedIn Message",
+        "Twitter DM"
+      ]
+    },
+    {
+      "name": "Casey Rodriguez",
+      "role": "Engineering Manager",
+      "yearsInRole": 5,
+      "background": "Transitioned from IC to management, responsible for team hiring",
+      "interviewTip": "Show your growth mindset and collaborative skills. They care about cultural fit as much as technical skills.",
+      "waysToConnect": [
+        "LinkedIn Message",
+        "Company Event"
+      ]
+    },
+    {
+      "name": "Morgan Lee",
+      "role": "Platform Engineer",
+      "yearsInRole": 4,
+      "background": "Infrastructure and DevOps specialist",
+      "interviewTip": "Deep knowledge of deployment pipelines and infrastructure is crucial. Know your containerization.",
+      "waysToConnect": [
+        "LinkedIn Message",
+        "Open Office Hours"
+      ]
+    }
+  ]
+}
+
