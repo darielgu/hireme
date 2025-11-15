@@ -19,3 +19,5 @@ Getting UV up to date
 
 CD into backend
 `uv run python -m uvicorn app.main:app --reload`
+
+PS - adam ruined our project
