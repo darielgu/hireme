@@ -1,0 +1,161 @@
+{
+  "topics": [],
+  "interviewerIntel": {
+    "yearsOfExperience": "",
+    "technicalSpecialties": "",
+    "predictedQuestionAreas": "",
+    "backgroundSummary": ""
+  },
+  "fitScore": {
+    "score": 0,
+    "skillsGaps": "",
+    "recommendedImprovements": ""
+  },
+  "companyResearch": {
+    "companyValues": "",
+    "hiringStyle": "",
+    "cultureSummary": "",
+    "interviewPatterns": ""
+  },
+  "studyPlan": [
+    {
+      "day": 1,
+      "title": "",
+      "description": "",
+      "leetcodeQuestions": [],
+      "resources": []
+    },
+    {
+      "day": 2,
+      "title": "",
+      "description": "",
+      "leetcodeQuestions": [],
+      "resources": []
+    },
+    {
+      "day": 3,
+      "title": "",
+      "description": "",
+      "leetcodeQuestions": [],
+      "resources": []
+    },
+    {
+      "day": 4,
+      "title": "",
+      "description": "",
+      "leetcodeQuestions": [],
+      "resources": []
+    },
+    {
+      "day": 5,
+      "title": "",
+      "description": "",
+      "leetcodeQuestions": [],
+      "resources": []
+    },
+    {
+      "day": 6,
+      "title": "",
+      "description": "",
+      "leetcodeQuestions": [],
+      "resources": []
+    },
+    {
+      "day": 7,
+      "title": "",
+      "description": "",
+      "leetcodeQuestions": [],
+      "resources": []
+    }
+  ],
+  "practiceQuestions": [
+    {
+      "id": "",
+      "category": "",
+      "difficulty": "Hard",
+      "estimatedTime": 0,
+      "title": "",
+      "description": "",
+      "keyDiscussionPoints": []
+    },
+    {
+      "id": "",
+      "category": "",
+      "difficulty": "Hard",
+      "estimatedTime": 0,
+      "title": "",
+      "description": "",
+      "keyDiscussionPoints": []
+    },
+    {
+      "id": "",
+      "category": "",
+      "difficulty": "Medium",
+      "estimatedTime": 0,
+      "title": "",
+      "description": "",
+      "keyDiscussionPoints": []
+    },
+    {
+      "id": "",
+      "category": "",
+      "difficulty": "Hard",
+      "estimatedTime": 0,
+      "title": "",
+      "description": "",
+      "keyDiscussionPoints": []
+    },
+    {
+      "id": "",
+      "category": "",
+      "difficulty": "Medium",
+      "estimatedTime": 0,
+      "title": "",
+      "description": "",
+      "keyDiscussionPoints": []
+    },
+    {
+      "id": "",
+      "category": "",
+      "difficulty": "Hard",
+      "estimatedTime": 0,
+      "title": "",
+      "description": "",
+      "keyDiscussionPoints": []
+    }
+  ],
+  "peopleInRole": [
+    {
+      "name": "",
+      "role": "",
+      "yearsInRole": 0,
+      "background": "",
+      "interviewTip": "",
+      "waysToConnect": []
+    },
+    {
+      "name": "",
+      "role": "",
+      "yearsInRole": 0,
+      "background": "",
+      "interviewTip": "",
+      "waysToConnect": []
+    },
+    {
+      "name": "",
+      "role": "",
+      "yearsInRole": 0,
+      "background": "",
+      "interviewTip": "",
+      "waysToConnect": []
+    },
+    {
+      "name": "",
+      "role": "",
+      "yearsInRole": 0,
+      "background": "",
+      "interviewTip": "",
+      "waysToConnect": []
+    }
+  ]
+}
