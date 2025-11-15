@@ -15,5 +15,7 @@ Getting UV up to date
 
 `uv sync`
 
-Run Command
-``
+#### Running the backend
+
+CD into backend
+`uv run python -m uvicorn app.main:app --reload`
