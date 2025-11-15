@@ -1,7 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { motion, useInView, useScroll, useTransform, MotionValue } from "framer-motion";
+import { NavBar } from "@/components/ui/nav-bar";
+import { Home, Calendar, HelpCircle, Users } from "lucide-react";
+import { GlowingEffect } from "@/components/ui/glowing-effect-card";
+import { Waves } from "@/components/ui/waves";
 
 // ============================================================================
 // TYPE DEFINITIONS - Backend team should match these interfaces
@@ -386,6 +391,14 @@ export default function InsightsPage() {
 
   const tabs = ["Home", "7-Day Study Plan", "Practice Questions", "People in Role"];
 
+  // NavBar items configuration
+  const navItems = [
+    { name: "Home", id: "Home", icon: Home },
+    { name: "7-Day Study Plan", id: "7-Day Study Plan", icon: Calendar },
+    { name: "Practice Questions", id: "Practice Questions", icon: HelpCircle },
+    { name: "People in Role", id: "People in Role", icon: Users },
+  ];
+
   // Fetch data on component mount
   useEffect(() => {
     const loadData = async () => {
@@ -426,6 +439,60 @@ export default function InsightsPage() {
     }
   };
 
+  // Scroll animation component with ContainerScroll effect
+  const AnimatedScrollSection = ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const { scrollYProgress } = useScroll({
+      target: containerRef,
+      offset: ["start 0.9", "start 0.1"],
+    });
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+      const checkMobile = () => {
+        setIsMobile(window.innerWidth <= 768);
+      };
+      checkMobile();
+      window.addEventListener("resize", checkMobile);
+      return () => {
+        window.removeEventListener("resize", checkMobile);
+      };
+    }, []);
+
+    const scaleDimensions = () => {
+      return isMobile ? [0.95, 1] : [0.98, 1];
+    };
+
+    const rotate = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, -10, 0, 0]);
+    const scale = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.95, 0.98, 1, 1]);
+    const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.3, 0.7, 1, 1]);
+
+    return (
+      <div
+        ref={containerRef}
+        className="w-full py-2 md:py-4"
+        style={{
+          perspective: "1000px",
+        }}
+      >
+        <motion.div
+          style={{
+            rotateX: rotate,
+            scale,
+            opacity,
+          }}
+          className="w-full"
+        >
+          {children}
+        </motion.div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -438,34 +505,28 @@ export default function InsightsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header with Tabs */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex space-x-1">
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-3 font-medium transition-colors ${
-                  activeTab === tab
-                    ? "bg-red-700 text-white"
-                    : "text-black bg-white hover:bg-gray-50"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 relative">
+      {/* Waves Background */}
+      <Waves
+        className="z-0"
+        strokeColor="white"
+        backgroundColor="transparent"
+        pointerSize={0.5}
+      />
+      
+      {/* New NavBar Component */}
+      <NavBar
+        items={navItems}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 py-6 pt-20 sm:pt-24 pb-24 sm:pb-6">
         {/* Back Button */}
         <button
           onClick={() => router.back()}
-          className="mb-6 flex items-center gap-2 text-black hover:opacity-80 transition-opacity bg-white px-4 py-2 rounded-md shadow-sm"
+          className="mb-6 flex items-center gap-2 text-black hover:opacity-80 transition-opacity bg-white/10 backdrop-blur-xl px-4 py-2 rounded-md shadow-lg border border-white/20"
         >
           <svg
             width="16"
@@ -485,30 +546,74 @@ export default function InsightsPage() {
         {/* Tab Content */}
         {activeTab === "Home" && (
           <div className="space-y-6">
-            {/* Predicted Interview Topics */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold text-black mb-4">
-                Predicted Interview Topics
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {topics.map((topic) => (
-                  <span
-                    key={topic}
-                    className="bg-red-700 text-white px-4 py-2 rounded-full text-sm font-medium"
-                  >
-                    {topic}
-                  </span>
-                ))}
+            {/* Company Research */}
+            <AnimatedScrollSection>
+              <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
+                <GlowingEffect
+                  variant="red"
+                  spread={40}
+                  glow={true}
+                  disabled={false}
+                  proximity={64}
+                  inactiveZone={0.01}
+                />
+                <div className="relative">
+                  <h2 className="text-xl font-bold text-black mb-4">
+                    Company Research
+                  </h2>
+              {companyResearch ? (
+                <div className="space-y-4">
+                  <div className="border-b border-gray-200 pb-3">
+                    <p className="text-sm text-gray-600 mb-1">Company Values</p>
+                    <p className="text-base font-medium text-black">
+                      {companyResearch.companyValues}
+                    </p>
+                  </div>
+                  <div className="border-b border-gray-200 pb-3">
+                    <p className="text-sm text-gray-600 mb-1">Hiring Style</p>
+                    <p className="text-base font-medium text-black">
+                      {companyResearch.hiringStyle}
+                    </p>
+                  </div>
+                  <div className="border-b border-gray-200 pb-3">
+                    <p className="text-sm text-gray-600 mb-1">Culture Summary</p>
+                    <p className="text-base font-medium text-black">
+                      {companyResearch.cultureSummary}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">
+                      Interview Patterns
+                    </p>
+                    <p className="text-base font-medium text-black">
+                      {companyResearch.interviewPatterns}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-gray-500">No company research data available</p>
+              )}
+                </div>
               </div>
-            </div>
+            </AnimatedScrollSection>
 
             {/* Two Column Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Interviewer Intel */}
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-bold text-black mb-4">
-                  Interviewer Intel
-                </h2>
+            <AnimatedScrollSection>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Interviewer Intel */}
+                <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
+                  <GlowingEffect
+                    variant="red"
+                    spread={40}
+                    glow={true}
+                    disabled={false}
+                    proximity={64}
+                    inactiveZone={0.01}
+                  />
+                  <div className="relative">
+                    <h2 className="text-xl font-bold text-black mb-4">
+                      Interviewer Intel
+                    </h2>
                 {interviewerIntel ? (
                   <div className="space-y-4">
                     <div className="border-b border-gray-200 pb-3">
@@ -547,11 +652,21 @@ export default function InsightsPage() {
                 ) : (
                   <p className="text-gray-500">No interviewer data available</p>
                 )}
-              </div>
+                  </div>
+                </div>
 
-              {/* Fit Score */}
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-bold text-black mb-4">Fit Score</h2>
+                {/* Fit Score */}
+                <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
+                  <GlowingEffect
+                    variant="red"
+                    spread={40}
+                    glow={true}
+                    disabled={false}
+                    proximity={64}
+                    inactiveZone={0.01}
+                  />
+                  <div className="relative">
+                    <h2 className="text-xl font-bold text-black mb-4">Fit Score</h2>
                 {fitScore ? (
                   <div className="flex flex-col items-center">
                     {/* Circular Progress Bar */}
@@ -607,47 +722,39 @@ export default function InsightsPage() {
                 ) : (
                   <p className="text-gray-500">No fit score data available</p>
                 )}
-              </div>
-            </div>
-
-            {/* Company Research */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold text-black mb-4">
-                Company Research
-              </h2>
-              {companyResearch ? (
-                <div className="space-y-4">
-                  <div className="border-b border-gray-200 pb-3">
-                    <p className="text-sm text-gray-600 mb-1">Company Values</p>
-                    <p className="text-base font-medium text-black">
-                      {companyResearch.companyValues}
-                    </p>
-                  </div>
-                  <div className="border-b border-gray-200 pb-3">
-                    <p className="text-sm text-gray-600 mb-1">Hiring Style</p>
-                    <p className="text-base font-medium text-black">
-                      {companyResearch.hiringStyle}
-                    </p>
-                  </div>
-                  <div className="border-b border-gray-200 pb-3">
-                    <p className="text-sm text-gray-600 mb-1">Culture Summary</p>
-                    <p className="text-base font-medium text-black">
-                      {companyResearch.cultureSummary}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">
-                      Interview Patterns
-                    </p>
-                    <p className="text-base font-medium text-black">
-                      {companyResearch.interviewPatterns}
-                    </p>
                   </div>
                 </div>
-              ) : (
-                <p className="text-gray-500">No company research data available</p>
-              )}
-            </div>
+              </div>
+            </AnimatedScrollSection>
+
+            {/* Predicted Interview Topics */}
+            <AnimatedScrollSection>
+              <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
+                <GlowingEffect
+                  variant="red"
+                  spread={40}
+                  glow={true}
+                  disabled={false}
+                  proximity={64}
+                  inactiveZone={0.01}
+                />
+                <div className="relative">
+                  <h2 className="text-xl font-bold text-black mb-4">
+                    Predicted Interview Topics
+                  </h2>
+                  <div className="flex flex-wrap gap-2">
+                    {topics.map((topic) => (
+                      <span
+                        key={topic}
+                        className="bg-red-700 text-white px-4 py-2 rounded-full text-sm font-medium"
+                      >
+                        {topic}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </AnimatedScrollSection>
           </div>
         )}
 
@@ -667,8 +774,18 @@ export default function InsightsPage() {
             {/* Study Plan Sections */}
             <div className="space-y-6">
               {studyPlan.map((day) => (
-                <div key={day.day} className="bg-white rounded-lg shadow-md p-6">
-                  <div className="flex items-start gap-4 mb-4">
+                <AnimatedScrollSection key={day.day}>
+                  <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
+                    <GlowingEffect
+                      variant="red"
+                      spread={40}
+                      glow={true}
+                      disabled={false}
+                      proximity={64}
+                      inactiveZone={0.01}
+                    />
+                    <div className="relative">
+                      <div className="flex items-start gap-4 mb-4">
                     <div className="bg-red-700 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-xl flex-shrink-0">
                       {day.day}
                     </div>
@@ -735,8 +852,10 @@ export default function InsightsPage() {
                         ))}
                       </div>
                     </div>
+                    </div>
+                    </div>
                   </div>
-                </div>
+                </AnimatedScrollSection>
               ))}
             </div>
           </div>
@@ -758,8 +877,18 @@ export default function InsightsPage() {
             {/* Question Cards */}
             <div className="space-y-6">
               {practiceQuestions.map((question) => (
-                <div key={question.id} className="bg-white rounded-lg shadow-md p-6">
-                  <div className="flex items-start justify-between mb-4">
+                <AnimatedScrollSection key={question.id}>
+                  <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
+                    <GlowingEffect
+                      variant="red"
+                      spread={40}
+                      glow={true}
+                      disabled={false}
+                      proximity={64}
+                      inactiveZone={0.01}
+                    />
+                    <div className="relative">
+                      <div className="flex items-start justify-between mb-4">
                     <div className="flex gap-2">
                       <span className="bg-pink-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">
                         {question.category}
@@ -796,12 +925,14 @@ export default function InsightsPage() {
                     </button>
                     <button
                       onClick={() => handleSavePracticeQuestion(question.id)}
-                      className="bg-white text-red-700 border border-red-700 px-6 py-2 rounded-md font-medium hover:bg-red-50 transition-colors"
+                      className="bg-white/10 backdrop-blur-xl text-red-700 border border-red-700/50 px-6 py-2 rounded-md font-medium hover:bg-red-50/20 transition-colors"
                     >
                       Save for Later
                     </button>
                   </div>
-                </div>
+                    </div>
+                  </div>
+                </AnimatedScrollSection>
               ))}
             </div>
           </div>
@@ -823,8 +954,18 @@ export default function InsightsPage() {
             {/* Employee Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {peopleInRole.map((person, idx) => (
-                <div key={idx} className="bg-white rounded-lg shadow-md p-6">
-                  <h2 className="text-xl font-bold text-gray-800 mb-1">
+                <AnimatedScrollSection key={idx}>
+                  <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
+                    <GlowingEffect
+                      variant="red"
+                      spread={40}
+                      glow={true}
+                      disabled={false}
+                      proximity={64}
+                      inactiveZone={0.01}
+                    />
+                    <div className="relative">
+                      <h2 className="text-xl font-bold text-gray-800 mb-1">
                     {person.name}
                   </h2>
                   <p className="text-lg font-bold text-red-700 mb-2">
@@ -856,14 +997,16 @@ export default function InsightsPage() {
                       {person.waysToConnect.map((method, methodIdx) => (
                         <button
                           key={methodIdx}
-                          className="bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm hover:bg-gray-50 transition-colors"
+                          className="bg-white/10 backdrop-blur-xl text-gray-700 border border-gray-300/50 px-4 py-2 rounded-md text-sm hover:bg-gray-50/20 transition-colors"
                         >
                           {method}
                         </button>
                       ))}
                     </div>
                   </div>
-                </div>
+                    </div>
+                  </div>
+                </AnimatedScrollSection>
               ))}
             </div>
           </div>
@@ -874,15 +1017,38 @@ export default function InsightsPage() {
           activeTab !== "7-Day Study Plan" &&
           activeTab !== "Practice Questions" &&
           activeTab !== "People in Role" && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold text-black mb-4">
-                {activeTab}
-              </h2>
-              <p className="text-gray-600">
-                Content for {activeTab} will be displayed here.
-              </p>
+            <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
+              <GlowingEffect
+                variant="red"
+                spread={40}
+                glow={true}
+                disabled={false}
+                proximity={64}
+                inactiveZone={0.01}
+              />
+              <div className="relative">
+                <h2 className="text-xl font-bold text-black mb-4">
+                  {activeTab}
+                </h2>
+                <p className="text-gray-600">
+                  Content for {activeTab} will be displayed here.
+                </p>
+              </div>
             </div>
           )}
+
+        {/* Footer copywriting section */}
+        <div className="mt-16 mb-8 px-4">
+          <div className="max-w-4xl mx-auto text-center space-y-6 py-12">
+           
+            
+            <div className="pt-8">
+              <p className="text-sm opacity-0">
+                Good luck with your interview preparation!
+              </p>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   );
