@@ -1,6 +1,5 @@
 import json
 import os
-import threading
 from concurrent.futures import ThreadPoolExecutor
 
 from dotenv import load_dotenv
@@ -520,18 +519,21 @@ def run_all():
     profile_data = ps.scrape_linkedin_profile(
         "https://www.linkedin.com/in/dariel-gutierrez/"
     )
-    t1 = threading.Thread(target=ps.company_research, args=(company_name,))
-    t1.start()
-    # company_data = ps.company_research(company_name)
-    t2 = threading.Thread(target=ps.generate_fit_score, args=(job_data, profile_data))
-    t2.start()
-    # fit_score = ps.generate_fit_score(job_data, profile_data)  # type: ignore
-    t3 = threading.Thread(target=ps.find_references, args=(company_name,))
-    t3.start()
 
-    t1.join()
-    t2.join()
-    t3.join()
+    with ThreadPoolExecutor() as executor:
+        # Run all 3 functions at the same time
+        future_company_data = executor.submit(ps.company_research, company_name)
+        future_fit_score = executor.submit(
+            ps.generate_fit_score,
+            job_data,
+            profile_data,  # type: ignore
+        )  # type: ignore
+        future_references = executor.submit(ps.find_references, company_name)
+
+        # Wait for each to finish and get results
+        company_data = future_company_data.result()
+        fit_score = future_fit_score.result()
+        references = future_references.result()
 
     # references = ps.find_references(company_name)
     run_output = {
@@ -566,30 +568,4 @@ def save_run(run_output, filename="runs.json"):
 
 
 if __name__ == "__main__":
-    # ps = ParallelService()  # type: ignore
     run_all()
-
-    # TEST LINKEDIN SCRAPE
-
-    # profile_data = ps.scrape_linkedin_profile(
-    #     "https://www.linkedin.com/in/dariel-gutierrez/"
-    # )
-    # print(profile_data)
-
-    # TEST JOB DESCRIPTION SCRAPE
-
-    # job_data = ps.search_job_description(
-    #     "https://careers.salesforce.com/en/jobs/jr308796/summer-2026-intern-software-engineer/"
-    # )
-
-    # TEST REFERAL FINDER
-
-    # url = "https://careers.salesforce.com/en/jobs/jr308796/summer-2026-intern-software-engineer/"
-
-    # company_name = ps.extract_company_name(url)
-    # references = ps.find_references(company_name)
-    # print(references)  # type: ignore
-
-    # TEST COMPANY RESEARCH
-    # company_data = ps.company_research("Salesforce")
-    # print(company_data)
