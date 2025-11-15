@@ -1,6 +1,7 @@
 import json
 import os
 import threading
+from concurrent.futures import ThreadPoolExecutor
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -519,9 +520,20 @@ def run_all():
     profile_data = ps.scrape_linkedin_profile(
         "https://www.linkedin.com/in/dariel-gutierrez/"
     )
-    company_data = ps.company_research(company_name)
-    fit_score = ps.generate_fit_score(job_data, profile_data)  # type: ignore
-    references = ps.find_references(company_name)
+    t1 = threading.Thread(target=ps.company_research, args=(company_name,))
+    t1.start()
+    # company_data = ps.company_research(company_name)
+    t2 = threading.Thread(target=ps.generate_fit_score, args=(job_data, profile_data))
+    t2.start()
+    # fit_score = ps.generate_fit_score(job_data, profile_data)  # type: ignore
+    t3 = threading.Thread(target=ps.find_references, args=(company_name,))
+    t3.start()
+
+    t1.join()
+    t2.join()
+    t3.join()
+
+    # references = ps.find_references(company_name)
     run_output = {
         "company_name": company_name,
         "job_data": job_data,

@@ -2,20 +2,16 @@ import threading
 
 from app.services.parallel_service import ParallelService
 from app.services.parser import PDFParser
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
 
 router = APIRouter()
 
 
-class Pipeline(BaseModel):
-    jobUrl: str
-    linkedin: str
-
-
 @router.post("/pipeline")
 async def create_pipeline(
-    pipeline: Pipeline,
+    jobUrl: str = Form(...),
+    linkedin: str = Form(...),
     file: UploadFile = File(...),
 ):
     # ------- FIRST STEP: PARSE THE PDF RESUME -------
@@ -38,9 +34,9 @@ async def create_pipeline(
     # we have structured output of their resume here - kick off next steps async
 
     parallel = ParallelService()
-    company_name = parallel.extract_company_name(pipeline.jobUrl)
-    job_data = parallel.search_job_description(pipeline.jobUrl)
-    interviewer_data = parallel.scrape_linkedin_profile(pipeline.linkedin)
+    company_name = parallel.extract_company_name(jobUrl)
+    job_data = parallel.search_job_description(jobUrl)
+    interviewer_data = parallel.scrape_linkedin_profile(linkedin)
     fit_score = parallel.generate_fit_score(job_data, userData)  # type: ignore
     references = parallel.find_references(company_name)
 
