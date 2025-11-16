@@ -509,6 +509,211 @@ Scoring guidelines:
         )
         return json.loads(response.choices[0].message.content)  # type: ignore
 
+    def get_leetcode(self, company_data: dict, company_name: str) -> dict:
+        topics = company_data.get("leetcode_topics", [])
+        prompt = f"""search the best 3 leetcode problems that are frequently asked by {
+            company_name
+        } for software engineer interviews. Use the list of topics, {
+            topics
+        }, and search for problems that cover thosetopics. If the list does not give enough context, look on the web for known problems to be asked by {
+            company_name
+        }. If still there is not enough context take your best guess at what leetcode problems the intervier could ask based on the kind of work {
+            company_name
+        } does.Return ONLY valid JSON.
+        Format:
+        [
+        {
+            "problem_name": "",
+            "url": ""
+        }
+        ]
+        """
+
+        """
+        Get LeetCode problems for a company using the Parallel API.
+
+        Args:
+            company_name (str): The name of the company to get LeetCode problems for.
+            topics (list): The list of topics to get LeetCode problems for.
+        Returns:
+            dict: The LeetCode problems data.
+        """
+        Oclient = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        response = Oclient.chat.completions.create(
+            model="gpt-4.1-nano",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            temperature=0,
+        )
+        print("raw leetcode response:", response.choices[0].message.content)  # type: ignore
+        return json.loads(response.choices[0].message.content)  # type: ignore
+
+    def create_interview_questions(
+        self, job_data: dict, user_data: dict
+    ) -> dict | None:
+        """):
+        Create practice questions based on job and user data.
+        """
+        Oclient = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        response = Oclient.chat.completions.create(
+            model="gpt-4.1-nano",
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"Create 5 practice interview questions based on the following job description and users resume. Ask something an interviewer would ask from that company for a Intern Level Software Engineer. Provide questions in JSON format. Job Description: {job_data} User Data: {user_data}",
+                }
+            ],
+            temperature=0,
+        )
+        return json.loads(response.choices[0].message.content)  # type: ignore
+
+    def interview_dialogue(self, question: str, answer: str) -> dict | None:
+        """
+        Generate interview dialogue based on a question and answer.
+        """
+        Oclient = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        response = Oclient.chat.completions.create(
+            model="gpt-4.1-nano",
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"Given the interview question: {question} and the user's answer: {answer}, Generate feedback on the answer, including strengths and areas for improvement.",
+                }
+            ],
+            temperature=0,
+        )
+        return response.choices[0].message.content  # type: ignore
+
+    def cheat_sheet(self, data: dict) -> dict | None:
+        """
+        Create a cheat sheet based on job and user data.
+        """
+        prompt = f"""You are an expert interview-analysis engine. 
+
+Given a deeply structured JSON payload describing:
+- job posting data
+- company research
+- interview process patterns
+- candidate profile
+- interviewer profile
+- fit score analysis
+- references
+- LinkedIn scraped data
+- news
+- leetcode topics
+- people in similar roles
+
+…return a SINGLE JSON object with the fields below, containing the most 
+useful and distilled insights for interview preparation.
+
+IMPORTANT:
+- Do NOT return HTML.
+- Do NOT return markdown.
+- Only return valid pure JSON.
+- Do NOT include commentary.
+- Summaries must be short, actionable, and conversationally useful.
+
+------------------------------------------
+EXPECTED OUTPUT SHAPE (strict):
+
+{{
+  "speakPoints": string[],
+  "companyMustKnows": string[],
+  "recentNews": string[],
+  "peopleExperience": [
+    {{
+      "name": string,
+      "role": string,
+      "interviewTip": string
+    }}
+  ],
+  "leetcodeTopics": string[],
+  "interviewerIntel": {{
+    "technicalSpecialties": string[],
+    "affiliations": string[],
+    "backgroundSummary": string
+  }},
+  "fitScoreSummary": {{
+    "overall": number,
+    "skillsGaps": string[],
+    "recommendedImprovements": string[]
+  }}
+}}
+
+------------------------------------------
+HOW TO GENERATE THESE FIELDS:
+
+1. **speakPoints (8 max)**
+   Based on:
+   - interviewer technical specialties
+   - interviewer background summary
+   - shared affiliations or alma maters
+   - common roles seen in similar professionals
+   - skill gaps from the fit score
+   - company values or interview patterns
+   - anything high-leverage for conversational hooks
+   Must be actionable, not generic.
+
+2. **companyMustKnows**
+   From:
+   - mission statement
+   - core values
+   - engineering culture
+   - interview process patterns
+   - culture summary
+   Should be 3–5 bullets.
+
+3. **recentNews**
+    derive from job context.
+
+4. **peopleExperience**
+   Use:
+   - search web for glassdoor of people who have interviewed at the company for similar roles
+   provide: role, interview tip, overall experience 1/55
+
+5. **leetcodeTopics**
+   From:
+   - company_data.leetcode_topics
+   Limit to 10.
+
+6. **interviewerIntel**
+   Should summarize:
+   - technical specialty areas inferred from experience
+   - affiliations (schools, orgs, shared connections)
+   - a 1–2 sentence background summary
+
+7. **Recommendee Action**
+   From the fit_score object:
+   - Give some specific, actionable recommendations to improve based on skill gaps.
+   - 
+
+------------------------------------------
+
+Now generate the JSON output using the following data:
+
+{data}
+
+------------------------------------------
+REMINDER:
+Only return valid JSON. No commentary, no markdown, no explanations.
+        """
+        Oclient = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        response = Oclient.chat.completions.create(
+            model="gpt-4.1-nano",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
+            temperature=0,
+        )
+        return json.loads(response.choices[0].message.content)  # type: ignore
+
 
 def run_all():
     ps = ParallelService()  # type: ignore
@@ -523,6 +728,7 @@ def run_all():
     with ThreadPoolExecutor() as executor:
         # Run all 3 functions at the same time
         future_company_data = executor.submit(ps.company_research, company_name)
+
         future_fit_score = executor.submit(
             ps.generate_fit_score,
             job_data,
@@ -530,10 +736,14 @@ def run_all():
         )  # type: ignore
         future_references = executor.submit(ps.find_references, company_name)
 
-        # Wait for each to finish and get results
         company_data = future_company_data.result()
+
+        leetcode_problems = executor.submit(ps.get_leetcode, company_data)  # type: ignore
+        # Wait for each to finish and get results
+
         fit_score = future_fit_score.result()
         references = future_references.result()
+        leetcode_problems = leetcode_problems.result()
 
     # references = ps.find_references(company_name)
     run_output = {
@@ -543,9 +753,63 @@ def run_all():
         "company_data": company_data,
         "fit_score": fit_score,
         "references": references,
+        "leetcode_problems": leetcode_problems,
     }
 
     save_run(run_output)
+
+
+def test_run_all():
+    ps = ParallelService()  # type: ignore
+    url = "https://careers.salesforce.com/en/jobs/jr308796/summer-2026-intern-software-engineer/"
+    company_name = ps.extract_company_name(url)
+    job_data = ps.search_job_description(url)
+
+    profile_data = ps.scrape_linkedin_profile(
+        "https://www.linkedin.com/in/dariel-gutierrez/"
+    )
+
+    company_data = ps.company_research(company_name)
+
+    fit_score = ps.generate_fit_score(
+        job_data,
+        profile_data,  # type: ignore
+    )  # type: ignore
+
+    references = ps.find_references(company_name)
+    cheat_sheet = ps.cheat_sheet(
+        {
+            "company_name": company_name,
+            "job_data": job_data,
+            "profile_data": profile_data,
+            "fit_score": fit_score,
+            "references": references,
+        }
+    )
+    interview_questions = ps.create_interview_questions(job_data, profile_data)  # type: ignore
+    # leetcode_problems = ps.get_leetcode(company_data, company_name)  # type: ignore
+
+    run_output = {
+        "company_name": company_name,
+        "job_data": job_data,
+        "profile_data": profile_data,
+        "company_data": company_data,
+        "fit_score": fit_score,
+        "references": references,
+        # "leetcode_problems": leetcode_problems,
+        "cheat_sheet": cheat_sheet,
+        "questions": interview_questions,
+    }
+
+    save_run(run_output, filename="test_runs.json")
+
+
+def test_get_leetcode():
+    ps = ParallelService()  # type: ignore
+    company_data = {"leetcode_topics": ["arrays", "strings", "dynamic programming"]}
+    company_name = "Google"
+    leetcode_problems = ps.get_leetcode(company_data, company_name)
+    print("output: ", leetcode_problems)
 
 
 def save_run(run_output, filename="runs.json"):
@@ -568,4 +832,4 @@ def save_run(run_output, filename="runs.json"):
 
 
 if __name__ == "__main__":
-    run_all()
+    test_get_leetcode()

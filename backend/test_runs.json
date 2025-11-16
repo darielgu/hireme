@@ -1,0 +1,538 @@
+[
+    {
+        "company_name": "The company name is Salesforce.",
+        "job_data": {
+            "job_info": {
+                "title": "Summer 2026 Intern - Software Engineer",
+                "company": "Salesforce",
+                "location": "California - San Francisco; Washington - Seattle; New York - New York; Washington - Bellevue",
+                "seniority_level": "Intern",
+                "department_or_team": "",
+                "job_url": "https://salesforce.wd12.myworkdayjobs.com/Futureforce_Internships/job/California---San-Francisco/Summer-2026-Intern---Software-Engineer_JR308796/apply"
+            },
+            "description": {
+                "summary": "Salesforce is the global leader in Customer Relationship Management (CRM). Companies of every size and industry are using Salesforce to transform their businesses, across sales, service, marketing, commerce, and more by connecting with customers in a whole new way. We harness technologies that can revolutionize companies, careers, and, hopefully, our world. We look forward to receiving your application! If selected for an internship you will have the opportunity to join Salesforce for a Summer 2026 Software Engineering internship. Only current university students graduating December 2026 and later are eligible for these internships.",
+                "responsibilities": [
+                    "Participate in a Summer 2026 Software Engineering internship at Salesforce."
+                ],
+                "requirements": {
+                    "must_have": [
+                        "Enrolled and working towards obtaining a BS/MS in Computer Science or related field.",
+                        "Returning to school after the Summer 2026 program to complete your degree.",
+                        "Must be attending a College or University in North America.",
+                        "Strong background in Computer Science or a related engineering discipline.",
+                        "Strong understanding of object-oriented programming/design, algorithms, and data structures.",
+                        "Strong understanding of CS fundamentals and practical coding application.",
+                        "Team player with demonstrated collaboration skills."
+                    ],
+                    "nice_to_have": [
+                        "Proficiency in SQL and relational database concepts.",
+                        "Proficiency in Java, JavaScript and related frameworks.",
+                        "Working knowledge of HTML and web technologies.",
+                        "Knowledge of front end and back end languages.",
+                        "Strong communication skills - written, verbal and visual.",
+                        "Strong analytical and problem-solving skills.",
+                        "Commitment to delivering high-quality solutions.",
+                        "Self-motivated and eager to learn.",
+                        "Experience using telemetry and metrics to drive operational excellence.",
+                        "Ability to quickly adapt to new technologies."
+                    ]
+                },
+                "skills": {
+                    "technical": [
+                        "Object-oriented programming",
+                        "Algorithms",
+                        "Data structures",
+                        "SQL",
+                        "Java",
+                        "JavaScript",
+                        "HTML",
+                        "Web technologies",
+                        "Front end and back end languages"
+                    ],
+                    "soft": [
+                        "Collaboration skills",
+                        "Communication skills",
+                        "Problem-solving skills",
+                        "Adaptability",
+                        "Motivation to learn"
+                    ],
+                    "tools_and_technologies": [
+                        "Telemetry and metrics tools"
+                    ]
+                },
+                "compensation_and_benefits": {
+                    "salary_range": "California: $52 - $59; New York: $52 - $59; Washington: $47 - $54",
+                    "equity": "",
+                    "bonus": "",
+                    "benefits": [
+                        "Relocation assistance",
+                        "Time off programs",
+                        "Medical, dental, vision",
+                        "Mental health support",
+                        "Paid parental leave",
+                        "Life and disability insurance",
+                        "401(k)",
+                        "Employee stock purchasing program"
+                    ]
+                }
+            }
+        },
+        "profile_data": {
+            "user_info": {
+                "name": "Dariel Gutierrez",
+                "headline": "Prev @ Salesforce | CS @ SDSU | CTO @ WCO | MLT CP 27\u2019 | Colorstack",
+                "location": "United States",
+                "connections": 500,
+                "avatar": "https://media.licdn.com/dms/image/v2/D5603AQFq17E8o7NgpA/profile-displayphoto-scale_200_200/B56ZeD3mXeHQAY-/0/1750264086048?e=2147483647&v=beta&t=Z_ifzMQDEiVMnn0bNGdZQ_DbJTCbjQmAtq9A2ZU9FqM",
+                "linkedin_url": "https://www.linkedin.com/in/dariel-gutierrez"
+            },
+            "experience": [
+                {
+                    "title": "Computer Science Tutor",
+                    "company": "San Diego State University",
+                    "location": "",
+                    "start_date": "Aug 2025",
+                    "end_date": "Present",
+                    "description": "Assisting students in Data Structures, OOP, and fundamental programming skills"
+                },
+                {
+                    "title": "Chief Technology Officer",
+                    "company": "World Computing Organization SDSU",
+                    "location": "",
+                    "start_date": "Aug 2025",
+                    "end_date": "Present",
+                    "description": "Behind all technical operations of World Computing Organization @ SDSU - Running student led projects- Coordinating workshops & guest speakers- Helping CS students find a path to industry"
+                },
+                {
+                    "title": "Software Engineer Intern",
+                    "company": "Salesforce",
+                    "location": "San Francisco Bay Area",
+                    "start_date": "Mar 2025",
+                    "end_date": "Aug 2025",
+                    "description": "Summer 2025"
+                },
+                {
+                    "title": "Undergraduate Research Assistant",
+                    "company": "San Diego State University",
+                    "location": "San Diego, California, United States",
+                    "start_date": "Feb 2025",
+                    "end_date": "Jun 2025",
+                    "description": "Working alongside professor Umut Can Cabuk furthering advance research in programmable drones, focusing on autonomous navigation, flight optimization, and algorithm development."
+                },
+                {
+                    "title": "Vanguard North Star",
+                    "company": "Vanguard",
+                    "location": "Online",
+                    "start_date": "May 2025",
+                    "end_date": "May 2025",
+                    "description": "A one-week experiential learning program designed for students who have been historically underrepresented in the financial services industry to gain exposure, direction, and access to opportunity. Virtually meeting with leaders from across Vanguard."
+                }
+            ],
+            "education": [
+                {
+                    "school": "San Diego State University",
+                    "degree": "Bachelor of Science - BS",
+                    "field": "Computer Science",
+                    "start_year": "2023",
+                    "end_year": "2027",
+                    "description": "Activities and Societies: World Computing Org, SHPE, ACM, ColorStack, Sigma Chi Fraternity Applied Mathematics Minor GPA: 3.84 / 4 | First Generation Scholar",
+                    "url": "https://www.linkedin.com/school/san-diego-state-university/?trk=public_profile_school_profile-section-card_image-click",
+                    "logo": "https://media.licdn.com/dms/image/v2/D560BAQFcwgUDxDXz3Q/company-logo_100_100/company-logo_100_100/0/1666719462484/san_diego_state_university_logo?e=2147483647&v=beta&t=RFiNm2hMKlOQm005sq3G6kPr1Ic8iIM0i5mj9MSFhmE"
+                },
+                {
+                    "school": "Management Leadership for Tomorrow",
+                    "degree": "Career Prep Fellow",
+                    "url": "https://www.linkedin.com/school/management-leadership-for-tomorrow/?trk=public_profile_school_profile-section-card_image-click",
+                    "logo": "https://media.licdn.com/dms/image/v2/D4E0BAQHQL5vnN-M4CA/company-logo_100_100/B4EZhXr32_GUAQ-/0/1753817776312?e=2147483647&v=beta&t=lfPA8O3NUVvZyajwNXzTCaabMBMD0ym4z35CHLYP7jk"
+                }
+            ],
+            "organizations": [
+                {
+                    "title": "Management Leadership for Tomorrow",
+                    "membership_type": "Career Prep Fellow | Software Engineering Track",
+                    "start_date": "Mar 2025",
+                    "end_date": "Present"
+                },
+                {
+                    "title": "SHPE",
+                    "membership_type": "-",
+                    "start_date": "Aug 2024",
+                    "end_date": "Present"
+                },
+                {
+                    "title": "ColorStack",
+                    "membership_type": "Fellow",
+                    "start_date": "May 2024",
+                    "end_date": "Present"
+                },
+                {
+                    "title": "Sigma Chi Fraternity",
+                    "membership_type": "-",
+                    "start_date": "2024",
+                    "end_date": "Present"
+                }
+            ],
+            "languages": [
+                {
+                    "title": "English",
+                    "subtitle": "Native or bilingual proficiency"
+                },
+                {
+                    "title": "Spanish",
+                    "subtitle": "Native or bilingual proficiency"
+                }
+            ],
+            "projects": [
+                {
+                    "title": "aboutDariel"
+                },
+                {
+                    "title": "Nova",
+                    "description": "MCP Powered Sales Dashboard"
+                }
+            ],
+            "activity": [
+                {
+                    "title": "Somehow I always find myself in Philly~\u2026",
+                    "link": "https://www.linkedin.com/posts/jianna-gapuz_somehow-i-always-find-myself-in-philly-activity-7382143558054670336-01D0",
+                    "img": "https://media.licdn.com/dms/image/v2/D4D22AQHH5gCOUtswzw/feedshare-shrink_800/B4DZnKkaFUKQAg-/0/1760040169432?e=2147483647&v=beta&t=Gk6cabO6gU7Sb68uNdigoh0Dkf0jG6j7Sftzq5E1b4E",
+                    "interaction": "Liked by Dariel Gutierrez"
+                },
+                {
+                    "title": "Today I had the opportunity to speak on\u2026",
+                    "link": "https://www.linkedin.com/posts/dariel-gutierrez_today-i-had-the-opportunity-to-speak-on-an-activity-7381489010361298944-t32j",
+                    "img": "https://media.licdn.com/dms/image/v2/D5622AQGMh9Ieh4X9mw/feedshare-shrink_800/B56ZnBRIQeG4Ag-/0/1759884120960?e=2147483647&v=beta&t=ED1P9eDPgtEhAI1pZsYou0XEaRY0O2WtQGzpGTpdXGA",
+                    "interaction": "Shared by Dariel Gutierrez"
+                },
+                {
+                    "title": "This past weekend, I had the amazing\u2026",
+                    "link": "https://www.linkedin.com/posts/basilyousif_codeforgood-jpmorganchase-hackathon-activity-7381029717606350849-KkSa",
+                    "img": "https://media.licdn.com/dms/image/v2/D5622AQGOTrp2jKiI7A/feedshare-shrink_800/B56Zm6vZ4tJkAg-/0/1759774614215?e=2147483647&v=beta&t=MfWfd9D1vWIYdVcBGsndiA4BTHkymmGA3aMa4uvvv7s",
+                    "interaction": "Liked by Dariel Gutierrez"
+                },
+                {
+                    "title": "Join the eLeet Coders club this Tuesday\u2026",
+                    "link": "https://www.linkedin.com/posts/eleet-coders-sdsu_join-the-eleet-coders-club-this-tuesday-10-activity-7380363994273890304-b9CF",
+                    "img": "https://media.licdn.com/dms/image/v2/D5622AQGy6Pe5LImgJQ/feedshare-shrink_800/B56ZmxR8c1I0Ag-/0/1759615896158?e=2147483647&v=beta&t=xozkPlus0MwjcA7xmHcoDya9B957uQBseBlLnCIux6w",
+                    "interaction": "Liked by Dariel Gutierrez"
+                }
+            ]
+        },
+        "company_data": {
+            "company_info": {
+                "mission_statement": "To empower companies to connect with their customers in a whole new way through the world's #1 CRM platform.",
+                "core_values": [
+                    "Trust",
+                    "Customer Success",
+                    "Innovation",
+                    "Equality",
+                    "Sustainability"
+                ],
+                "engineering_culture": "Salesforce fosters a collaborative, innovative, and inclusive engineering culture. Engineers are encouraged to build scalable, high-quality solutions while upholding the company's core values. The culture emphasizes learning, mentorship, and continuous improvement, with a strong focus on customer success and trust.",
+                "interview_process": "The Salesforce interview process typically starts with a recruiter phone screen or a technical screen for engineering roles. This is followed by a remote coding challenge (usually on HackerRank). The final round consists of multiple interviews with hiring managers, team members, and stakeholders, focusing on technical, behavioral, and scenario-based questions. The process usually takes 3\u20134 weeks.",
+                "common_interview_questions": [
+                    "Tell me about yourself.",
+                    "Why do you want to work at Salesforce?",
+                    "Tell me about your past projects.",
+                    "Tell me about your greatest success.",
+                    "What is a skill you have that is not listed on your resume?",
+                    "Determine if a number is a power of two.",
+                    "What are the different types of software testing?",
+                    "Design a system to schedule jobs in a distributed environment.",
+                    "Design a multi-tenant CRM system that ensures data isolation while maintaining scalability.",
+                    "Design a system that handles real-time lead updates and notifications across multiple Salesforce instances.",
+                    "Design a search feature that ensures fast response times for millions of records.",
+                    "Explain how you would handle imbalanced datasets in a lead-scoring model.",
+                    "How would you build a model to predict customer churn?"
+                ],
+                "leetcode_topics": [
+                    "Arrays",
+                    "Strings",
+                    "Hash Tables",
+                    "Linked Lists",
+                    "Trees",
+                    "Graphs",
+                    "Dynamic Programming",
+                    "Object-Oriented Design",
+                    "System Design"
+                ],
+                "recent_news": [
+                    "In 2024, Salesforce announced new AI-powered features for its CRM platform, enhancing automation and customer insights.",
+                    "Salesforce continues to expand its sustainability initiatives, aiming for net-zero emissions across its value chain.",
+                    "The company has made several strategic acquisitions to strengthen its cloud and data analytics offerings."
+                ]
+            }
+        },
+        "fit_score": {
+            "overall_fit_score": 70,
+            "categories": {
+                "technical_skills_match": {
+                    "score": 80,
+                    "reason": "The resume lists key technical skills such as object-oriented programming, algorithms, data structures, SQL, Java, JavaScript, and web technologies, which align well with the job requirements."
+                },
+                "experience_alignment": {
+                    "score": 70,
+                    "reason": "Dariel has internship experience at Salesforce and research experience in algorithms and autonomous navigation, but limited direct experience in full software engineering roles or team projects beyond internships."
+                },
+                "education_background": {
+                    "score": 90,
+                    "reason": "Currently enrolled in a BS in Computer Science at SDSU with a strong GPA (3.84), meeting the educational requirements for the internship."
+                },
+                "gpa_and_academics": {
+                    "score": 90,
+                    "reason": "GPA of 3.84/4 indicates strong academic performance relevant for internship selection."
+                },
+                "previous_company_experience": {
+                    "score": 75,
+                    "reason": "Experience includes a Salesforce internship and leadership roles in student organizations, demonstrating relevant industry exposure and leadership, but limited to one internship at Salesforce."
+                },
+                "leadership_and_involvement": {
+                    "score": 85,
+                    "reason": "Active involvement as CTO, tutor, and member of multiple organizations shows leadership, collaboration, and community engagement."
+                }
+            }
+        },
+        "references": {
+            "references": [
+                {
+                    "name": "Tangji Li",
+                    "linkedin_url": "https://www.linkedin.com/in/tangjili/",
+                    "email": null
+                },
+                {
+                    "name": "Jay Kingman",
+                    "linkedin_url": "https://www.linkedin.com/in/jay-kingman-a332bb2a",
+                    "email": null
+                },
+                {
+                    "name": "Rahul Rai",
+                    "linkedin_url": "https://www.linkedin.com/in/rahulrairai59",
+                    "email": null
+                },
+                {
+                    "name": "Minerva Sharma",
+                    "linkedin_url": "https://www.linkedin.com/in/minerva-sharma",
+                    "email": null
+                },
+                {
+                    "name": "Ayesha Sadaqat",
+                    "linkedin_url": "https://www.linkedin.com/in/ayesha-sadaqat",
+                    "email": null
+                },
+                {
+                    "name": "Gabriela Rosenfeld",
+                    "linkedin_url": "https://www.linkedin.com/in/gabriela-rosenfeld",
+                    "email": null
+                },
+                {
+                    "name": "Noelani Phillips",
+                    "linkedin_url": "https://www.linkedin.com/in/noelaniphillips2025",
+                    "email": null
+                },
+                {
+                    "name": "Kayla S.",
+                    "linkedin_url": "https://www.linkedin.com/in/kayla-s-3790571a5",
+                    "email": null
+                },
+                {
+                    "name": "Lovenish Garg",
+                    "linkedin_url": "https://www.linkedin.com/in/lovenishgarg",
+                    "email": null
+                },
+                {
+                    "name": "Xuan Wang",
+                    "linkedin_url": "https://www.linkedin.com/in/xuan-wang-90673a102",
+                    "email": null
+                },
+                {
+                    "name": "Aneri Shah",
+                    "linkedin_url": "https://in.linkedin.com/in/anerishah97",
+                    "email": null
+                },
+                {
+                    "name": "Yuhan Lin",
+                    "linkedin_url": "https://www.linkedin.com/in/yuhanlin1994",
+                    "email": null
+                },
+                {
+                    "name": "Karthik Pasagada",
+                    "linkedin_url": "https://www.linkedin.com/in/karthik-pasagada",
+                    "email": null
+                },
+                {
+                    "name": "Tiffany H.",
+                    "linkedin_url": "https://linkedin.com/in/huang-tiffany",
+                    "email": null
+                },
+                {
+                    "name": "Vibhor Shukla",
+                    "linkedin_url": "https://in.linkedin.com/in/vibhor16",
+                    "email": null
+                },
+                {
+                    "name": "Dennis Shen",
+                    "linkedin_url": "https://www.linkedin.com/in/tingli-shen",
+                    "email": null
+                },
+                {
+                    "name": "Abhishek Yadav",
+                    "linkedin_url": "https://in.linkedin.com/in/abhishekyadavcse",
+                    "email": null
+                },
+                {
+                    "name": "Nesara Madhav",
+                    "linkedin_url": "https://www.linkedin.com/in/nesara-madhav",
+                    "email": null
+                },
+                {
+                    "name": "Xiaoyan Shang",
+                    "linkedin_url": "https://www.linkedin.com/in/xiaoyan-shang",
+                    "email": null
+                },
+                {
+                    "name": "Wei-Chung Chen",
+                    "linkedin_url": "https://cn.linkedin.com/in/weichungchen",
+                    "email": null
+                },
+                {
+                    "name": "Yuntao Liang",
+                    "linkedin_url": "https://www.linkedin.com/in/yuntao-liang",
+                    "email": null
+                },
+                {
+                    "name": "Maria-Isabelle Dittamo",
+                    "linkedin_url": "https://www.linkedin.com/in/maria-isabelle-dittamo-4b6175192",
+                    "email": null
+                },
+                {
+                    "name": "Chris Q.",
+                    "linkedin_url": "https://www.linkedin.com/in/chrisqin0610",
+                    "email": null
+                },
+                {
+                    "name": "Yue Zhao",
+                    "linkedin_url": "https://www.linkedin.com/in/yue-zhao-irene",
+                    "email": null
+                },
+                {
+                    "name": "Hongkai Wu",
+                    "linkedin_url": "https://linkedin.com/in/hongkai-wu-862110b4",
+                    "email": null
+                },
+                {
+                    "name": "Jiazheng Li",
+                    "linkedin_url": "https://cn.linkedin.com/in/jiazheng-li",
+                    "email": null
+                },
+                {
+                    "name": "Qihui Li",
+                    "linkedin_url": "https://www.linkedin.com/in/qihui-li-419b6377",
+                    "email": null
+                },
+                {
+                    "name": "Pooja Sunkapur",
+                    "linkedin_url": "https://www.linkedin.com/in/poojasunkapur",
+                    "email": null
+                },
+                {
+                    "name": "Dayana Alvarado Escobedo",
+                    "linkedin_url": "https://www.salesforce.com/blog/author/dayana-alvarado-escobedo/",
+                    "email": null
+                }
+            ]
+        },
+        "cheat_sheet": {
+            "speakPoints": [
+                "Highlight your experience with object-oriented programming and data structures, aligning with Salesforce's tech stack.",
+                "Discuss your internship at Salesforce and how it prepared you for this role.",
+                "Emphasize leadership roles like CTO and tutoring, showcasing collaboration and initiative.",
+                "Mention your research on autonomous navigation to demonstrate problem-solving skills.",
+                "Express enthusiasm for Salesforce's CRM innovations and cloud technologies.",
+                "Share your involvement in organizations like ColorStack and SHPE to highlight community engagement.",
+                "Discuss your strong academic record and GPA as evidence of technical competence.",
+                "Ask about Salesforce's internship projects and team collaboration practices."
+            ],
+            "companyMustKnows": [
+                "Salesforce is a global leader in CRM, transforming industries through cloud-based solutions.",
+                "Core values include trust, customer success, innovation, and equality.",
+                "The company emphasizes a collaborative, inclusive engineering culture with a focus on innovation.",
+                "Internship programs are designed to develop future leaders through hands-on projects.",
+                "Salesforce values diversity, community involvement, and continuous learning."
+            ],
+            "recentNews": [
+                "Salesforce announced new AI-driven features to enhance customer engagement.",
+                "The company is expanding its sustainability initiatives in cloud data centers.",
+                "Salesforce reported strong Q2 earnings, emphasizing growth in AI and automation."
+            ],
+            "peopleExperience": [
+                {
+                    "name": "Jane Doe",
+                    "role": "Software Engineer at Salesforce",
+                    "interviewTip": "Prepare to discuss your technical projects and teamwork experiences in detail."
+                },
+                {
+                    "name": "John Smith",
+                    "role": "Product Manager at Salesforce",
+                    "interviewTip": "Be ready to articulate how your skills align with product development and customer needs."
+                }
+            ],
+            "leetcodeTopics": [
+                "Object-oriented programming",
+                "Algorithms",
+                "Data structures",
+                "SQL",
+                "Sorting and searching",
+                "Recursion",
+                "Dynamic programming",
+                "Graph algorithms",
+                "String manipulation",
+                "System design basics"
+            ],
+            "interviewerIntel": {
+                "technicalSpecialties": [
+                    "CRM systems",
+                    "Cloud computing",
+                    "AI and automation",
+                    "Web technologies"
+                ],
+                "affiliations": [
+                    "Salesforce University",
+                    "Salesforce Developer Community"
+                ],
+                "backgroundSummary": "Interviewer has a strong background in cloud solutions, CRM platforms, and software engineering, with a focus on innovative tech and customer-centric design."
+            },
+            "fitScoreSummary": {
+                "overall": 70,
+                "skillsGaps": [
+                    "Limited full-time software engineering experience beyond internships",
+                    "Some web technologies and front-end frameworks could be strengthened"
+                ],
+                "recommendedImprovements": [
+                    "Build more full-stack project experience to demonstrate end-to-end development skills",
+                    "Deepen knowledge of web frameworks like React or Angular",
+                    "Engage in more collaborative projects to showcase teamwork"
+                ]
+            }
+        },
+        "questions": {
+            "questions": [
+                {
+                    "question": "Can you describe a project where you applied object-oriented programming principles and how you ensured your design was scalable and maintainable?"
+                },
+                {
+                    "question": "Given your experience with Salesforce and your coursework, how would you approach learning and adapting to new technologies during this internship?"
+                },
+                {
+                    "question": "Tell me about a time when you collaborated with a team to solve a complex problem. What was your role, and what was the outcome?"
+                },
+                {
+                    "question": "How comfortable are you with SQL and relational databases, and can you give an example of how you've used these skills in a previous project or role?"
+                },
+                {
+                    "question": "As an intern, you'll be working on real-world applications. How do you prioritize tasks and ensure the quality of your code under tight deadlines?"
+                }
+            ]
+        }
+    }
+]
