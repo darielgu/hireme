@@ -51,12 +51,24 @@ export interface InterviewerIntel {
   technicalSpecialties: string;
   predictedQuestionAreas: string;
   backgroundSummary: string;
+  affiliations?: string[];
+  contactInfo?: {
+    linkedinUrl?: string;
+    email?: string;
+  };
+}
+
+export interface FitScoreCategory {
+  name: string;
+  score: number;
+  reason: string;
 }
 
 export interface FitScore {
   score: number; // 0-100
   skillsGaps: string;
   recommendedImprovements: string;
+  categories: FitScoreCategory[];
 }
 
 export interface CompanyResearch {
@@ -206,6 +218,11 @@ const MOCK_FIT_SCORE: FitScore = {
   skillsGaps: "Kubernetes, Advanced AWS Services",
   recommendedImprovements:
     "Study cloud deployment patterns and container orchestration",
+  categories: [
+    { name: "Technical Skills Match", score: 80, reason: "Strong technical foundation" },
+    { name: "Experience Alignment", score: 75, reason: "Relevant project experience" },
+    { name: "Education Background", score: 90, reason: "Excellent academic background" },
+  ],
 };
 
 const MOCK_COMPANY_RESEARCH: CompanyResearch = {
@@ -464,14 +481,36 @@ function mapBackendDataToInsights(backendData: BackendPipelineResponse): Insight
   const backgroundSummary = profile.user_info?.headline || 
     `${profile.user_info?.name || "Interviewer"}${profile.experience?.[0]?.company ? ` at ${profile.experience[0].company}` : ""}`;
 
+  // Extract affiliations from education and organizations
+  const affiliations: string[] = [];
+  if (profile.education && profile.education.length > 0) {
+    profile.education.forEach((edu) => {
+      if (edu.school) {
+        affiliations.push(edu.school);
+      }
+    });
+  }
+  if (profile.organizations && profile.organizations.length > 0) {
+    profile.organizations.forEach((org: any) => {
+      if (org.name || org.title) {
+        affiliations.push(org.name || org.title);
+      }
+    });
+  }
+
   const interviewerIntel: InterviewerIntel = {
     yearsOfExperience: experienceYears,
     technicalSpecialties: technicalSpecialties,
     predictedQuestionAreas: predictedQuestionAreas,
     backgroundSummary: backgroundSummary,
+    affiliations: affiliations.length > 0 ? affiliations : undefined,
+    contactInfo: {
+      linkedinUrl: profile.user_info?.linkedin_url,
+      email: undefined, // Email not available in backend response
+    },
   };
 
-  // Map fit score
+  // Map fit score with categories
   const fitScoreCategories = backendData.fit_score?.categories || {};
   const allReasons = Object.values(fitScoreCategories)
     .map((cat: any) => cat.reason)
@@ -487,10 +526,27 @@ function mapBackendDataToInsights(backendData: BackendPipelineResponse): Insight
   
   const recommendedImprovements = allReasons.join(". ") || "Continue building on your strengths";
 
+  // Map categories with readable names
+  const categoryMap: Record<string, string> = {
+    technical_skills_match: "Technical Skills Match",
+    experience_alignment: "Experience Alignment",
+    education_background: "Education Background",
+    gpa_and_academics: "GPA & Academics",
+    previous_company_experience: "Previous Company Experience",
+    leadership_and_involvement: "Leadership & Involvement",
+  };
+
+  const categories: FitScoreCategory[] = Object.entries(fitScoreCategories).map(([key, value]: [string, any]) => ({
+    name: categoryMap[key] || key.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+    score: value.score || 0,
+    reason: value.reason || "",
+  }));
+
   const fitScore: FitScore = {
     score: backendData.fit_score?.overall_fit_score || 0,
     skillsGaps: skillsGaps,
     recommendedImprovements: recommendedImprovements,
+    categories: categories,
   };
 
   // Map company research
@@ -556,16 +612,16 @@ function getInsightsData(): InsightsData {
     console.error("Error parsing stored data:", error);
   }
   
-  // Return mock data as fallback
-  return {
-    topics: MOCK_TOPICS,
-    interviewerIntel: MOCK_INTERVIEWER_INTEL,
-    fitScore: MOCK_FIT_SCORE,
-    companyResearch: MOCK_COMPANY_RESEARCH,
-    studyPlan: MOCK_STUDY_PLAN,
-    practiceQuestions: MOCK_PRACTICE_QUESTIONS,
-    peopleInRole: MOCK_PEOPLE_IN_ROLE,
-  };
+    // Return mock data as fallback
+    return {
+      topics: MOCK_TOPICS,
+      interviewerIntel: MOCK_INTERVIEWER_INTEL,
+      fitScore: MOCK_FIT_SCORE,
+      companyResearch: MOCK_COMPANY_RESEARCH,
+      studyPlan: MOCK_STUDY_PLAN,
+      practiceQuestions: MOCK_PRACTICE_QUESTIONS,
+      peopleInRole: MOCK_PEOPLE_IN_ROLE,
+    };
 }
 
 /**
@@ -600,14 +656,14 @@ export default function InsightsPage() {
   );
   const [peopleInRole, setPeopleInRole] = useState<Person[]>(MOCK_PEOPLE_IN_ROLE);
 
-  const tabs = ["Home", "7-Day Study Plan", "Practice Questions", "People in Role"];
+  const tabs = ["Home", "7-Day Study Plan", "People in Role", "Mock Interview"];
 
   // NavBar items configuration
   const navItems = [
     { name: "Home", id: "Home", icon: Home },
     { name: "7-Day Study Plan", id: "7-Day Study Plan", icon: Calendar },
-    { name: "Practice Questions", id: "Practice Questions", icon: HelpCircle },
     { name: "People in Role", id: "People in Role", icon: Users },
+    { name: "Mock Interview", id: "Mock Interview", icon: HelpCircle },
   ];
 
   // Fetch data on component mount
@@ -779,24 +835,191 @@ export default function InsightsPage() {
                         const data: BackendPipelineResponse = JSON.parse(storedData);
                         const companyName = data.company_name?.replace("The company name is ", "").replace(".", "") || 
                           data.job_data?.job_info?.company || "";
-                        const jobTitle = data.job_data?.job_info?.title || "";
-                        if (companyName || jobTitle) {
+                        const jobData = data.job_data;
+                        const jobInfo = jobData?.job_info;
+                        const description = jobData?.description;
+                        
                           return (
-                            <div className="mb-4 pb-4 border-b border-gray-200">
+                          <div className="space-y-4">
+                            {/* Job Info */}
+                            {jobInfo && (
+                              <div className="border-b border-gray-200 pb-4">
+                                <div className="mb-2">
                               <p className="text-sm text-gray-600 mb-1">Position</p>
                               <p className="text-lg font-bold text-red-700">
-                                {jobTitle} {companyName ? `at ${companyName}` : ""}
-                              </p>
+                                    {jobInfo.title || ""} {companyName ? `at ${companyName}` : ""}
+                                  </p>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                  {jobInfo.location && (
+                                    <div>
+                                      <p className="text-gray-600 mb-1">📍 Location</p>
+                                      <p className="text-black">{jobInfo.location}</p>
+                                    </div>
+                                  )}
+                                  {jobInfo.seniority_level && (
+                                    <div>
+                                      <p className="text-gray-600 mb-1">Level</p>
+                                      <p className="text-black">{jobInfo.seniority_level}</p>
+                                    </div>
+                                  )}
+                                  {jobInfo.department_or_team && (
+                                    <div>
+                                      <p className="text-gray-600 mb-1">Department</p>
+                                      <p className="text-black">{jobInfo.department_or_team}</p>
+                                    </div>
+                                  )}
+                                  {jobInfo.job_url && (
+                                    <div>
+                                      <p className="text-gray-600 mb-1">Job Posting</p>
+                                      <a 
+                                        href={jobInfo.job_url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="text-red-700 hover:underline text-sm"
+                                      >
+                                        View Original Posting →
+                                      </a>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Summary */}
+                            {description?.summary && (
+                              <div className="border-b border-gray-200 pb-4">
+                                <p className="text-sm text-gray-600 mb-2 font-semibold">About the Role</p>
+                                <p className="text-sm text-black leading-relaxed">{description.summary}</p>
+                              </div>
+                            )}
+
+                            {/* Requirements Grid */}
+                            {(description?.requirements?.must_have?.length > 0 || description?.requirements?.nice_to_have?.length > 0) && (
+                              <div className="border-b border-gray-200 pb-4">
+                                <p className="text-sm text-gray-600 mb-3 font-semibold">Requirements</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  {description.requirements.must_have && description.requirements.must_have.length > 0 && (
+                                    <div>
+                                      <p className="text-xs font-semibold text-red-700 mb-2">Must Have</p>
+                                      <ul className="space-y-1.5">
+                                        {description.requirements.must_have.map((req, idx) => (
+                                          <li key={idx} className="text-xs text-black flex items-start gap-2">
+                                            <span className="text-red-700 mt-1">✓</span>
+                                            <span>{req}</span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                  {description.requirements.nice_to_have && description.requirements.nice_to_have.length > 0 && (
+                                    <div>
+                                      <p className="text-xs font-semibold text-gray-600 mb-2">Nice to Have</p>
+                                      <ul className="space-y-1.5">
+                                        {description.requirements.nice_to_have.map((req, idx) => (
+                                          <li key={idx} className="text-xs text-black flex items-start gap-2">
+                                            <span className="text-gray-500 mt-1">+</span>
+                                            <span>{req}</span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Skills */}
+                            {description?.skills && (
+                              <div className="border-b border-gray-200 pb-4">
+                                <p className="text-sm text-gray-600 mb-3 font-semibold">Skills</p>
+                                <div className="space-y-3">
+                                  {description.skills.technical && description.skills.technical.length > 0 && (
+                                    <div>
+                                      <p className="text-xs text-gray-600 mb-2">Technical</p>
+                                      <div className="flex flex-wrap gap-2">
+                                        {description.skills.technical.map((skill, idx) => (
+                                          <span key={idx} className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">
+                                            {skill}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                  {description.skills.soft && description.skills.soft.length > 0 && (
+                                    <div>
+                                      <p className="text-xs text-gray-600 mb-2">Soft Skills</p>
+                                      <div className="flex flex-wrap gap-2">
+                                        {description.skills.soft.map((skill, idx) => (
+                                          <span key={idx} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
+                                            {skill}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                  {description.skills.tools_and_technologies && description.skills.tools_and_technologies.length > 0 && (
+                                    <div>
+                                      <p className="text-xs text-gray-600 mb-2">Tools & Technologies</p>
+                                      <div className="flex flex-wrap gap-2">
+                                        {description.skills.tools_and_technologies.map((tool, idx) => (
+                                          <span key={idx} className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">
+                                            {tool}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Compensation & Benefits */}
+                            {description?.compensation_and_benefits && (
+                              <div>
+                                <p className="text-sm text-gray-600 mb-3 font-semibold">Compensation & Benefits</p>
+                                <div className="space-y-3">
+                                  {description.compensation_and_benefits.salary_range && (
+                                    <div>
+                                      <p className="text-xs text-gray-600 mb-1">Salary Range</p>
+                                      <p className="text-sm font-medium text-black">{description.compensation_and_benefits.salary_range}</p>
+                                    </div>
+                                  )}
+                                  {description.compensation_and_benefits.equity && (
+                                    <div>
+                                      <p className="text-xs text-gray-600 mb-1">Equity</p>
+                                      <p className="text-sm font-medium text-black">{description.compensation_and_benefits.equity}</p>
+                                    </div>
+                                  )}
+                                  {description.compensation_and_benefits.bonus && (
+                                    <div>
+                                      <p className="text-xs text-gray-600 mb-1">Bonus</p>
+                                      <p className="text-sm font-medium text-black">{description.compensation_and_benefits.bonus}</p>
+                                    </div>
+                                  )}
+                                  {description.compensation_and_benefits.benefits && description.compensation_and_benefits.benefits.length > 0 && (
+                                    <div>
+                                      <p className="text-xs text-gray-600 mb-2">Benefits</p>
+                                      <div className="flex flex-wrap gap-2">
+                                        {description.compensation_and_benefits.benefits.map((benefit, idx) => (
+                                          <span key={idx} className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">
+                                            {benefit}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
                             </div>
                           );
-                        }
                       } catch (e) {
                         // Ignore parsing errors
                       }
                     }
-                    return null;
-                  })()}
-              {companyResearch ? (
+                    // Fallback to mapped data
+                    return companyResearch ? (
                 <div className="space-y-4">
                   <div className="border-b border-gray-200 pb-3">
                     <p className="text-sm text-gray-600 mb-1">Company Values</p>
@@ -827,7 +1050,8 @@ export default function InsightsPage() {
                 </div>
               ) : (
                 <p className="text-gray-500">No company research data available</p>
-              )}
+                    );
+                  })()}
                 </div>
               </div>
             </AnimatedScrollSection>
@@ -865,19 +1089,24 @@ export default function InsightsPage() {
                                     className="w-12 h-12 rounded-full object-cover"
                                   />
                                 )}
-                                <div>
+                                <div className="flex-1">
                                   <p className="text-base font-bold text-red-700">
                                     {interviewer.name || "Interviewer"}
                                   </p>
                                   {interviewer.headline && (
                                     <p className="text-sm text-gray-600">{interviewer.headline}</p>
                                   )}
+                                  {interviewer.location && (
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      📍 {interviewer.location}
+                                    </p>
+                                  )}
                                   {interviewer.linkedin_url && (
                                     <a
                                       href={interviewer.linkedin_url}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="text-xs text-blue-600 hover:underline"
+                                      className="text-xs text-blue-600 hover:underline mt-1 inline-block"
                                     >
                                       View LinkedIn Profile
                                     </a>
@@ -918,7 +1147,7 @@ export default function InsightsPage() {
                         {interviewerIntel.predictedQuestionAreas}
                       </p>
                     </div>
-                    <div>
+                    <div className="border-b border-gray-200 pb-3">
                       <p className="text-sm text-gray-600 mb-1">
                         Background Summary
                       </p>
@@ -926,6 +1155,86 @@ export default function InsightsPage() {
                         {interviewerIntel.backgroundSummary}
                       </p>
                     </div>
+                    {interviewerIntel.affiliations && interviewerIntel.affiliations.length > 0 && (
+                      <div className="border-b border-gray-200 pb-3">
+                        <p className="text-sm text-gray-600 mb-2">Affiliations</p>
+                        <div className="flex flex-wrap gap-2">
+                          {interviewerIntel.affiliations.map((affiliation, idx) => (
+                            <span
+                              key={idx}
+                              className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-medium"
+                            >
+                              {affiliation}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {interviewerIntel.contactInfo && (
+                      <div className="border-b border-gray-200 pb-3">
+                        <p className="text-sm text-gray-600 mb-2">Ways to Reach Out</p>
+                        <div className="flex flex-wrap gap-2">
+                          {interviewerIntel.contactInfo.linkedinUrl && (
+                            <a
+                              href={interviewerIntel.contactInfo.linkedinUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium hover:bg-blue-200 transition-colors"
+                            >
+                              LinkedIn
+                            </a>
+                          )}
+                          {interviewerIntel.contactInfo.email && (
+                            <a
+                              href={`mailto:${interviewerIntel.contactInfo.email}`}
+                              className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium hover:bg-gray-200 transition-colors"
+                            >
+                              Email
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    {/* Experience Timeline */}
+                    {(() => {
+                      const storedData = localStorage.getItem("pipelineData");
+                      if (storedData) {
+                        try {
+                          const data: BackendPipelineResponse = JSON.parse(storedData);
+                          const experience = data.profile_data?.experience || [];
+                          if (experience.length > 0) {
+                            return (
+                              <div className="border-t border-gray-200 pt-3">
+                                <p className="text-sm text-gray-600 mb-3 font-semibold">Experience Timeline</p>
+                                <div className="space-y-4 max-h-96 overflow-y-auto p-4 pr-2">
+                                  {experience.map((exp, idx) => (
+                                    <div key={idx} className="relative pl-6 border-l-2 border-red-200">
+                                      <div className="absolute -left-2 top-0 w-4 h-4 bg-red-700 rounded-full border-2 border-white"></div>
+                                      <div className="pb-2">
+                                        <p className="text-sm font-semibold text-gray-800">{exp.title}</p>
+                                        <p className="text-xs text-gray-600">{exp.company}</p>
+                                        {exp.location && (
+                                          <p className="text-xs text-gray-500">📍 {exp.location}</p>
+                                        )}
+                                        <p className="text-xs text-gray-500 mt-1">
+                                          {exp.start_date} - {exp.end_date}
+                                        </p>
+                                        {exp.description && (
+                                          <p className="text-xs text-gray-600 mt-2 line-clamp-3">{exp.description}</p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          }
+                        } catch (e) {
+                          // Ignore parsing errors
+                        }
+                      }
+                      return null;
+                    })()}
                   </div>
                 ) : (
                   <p className="text-gray-500">No interviewer data available</p>
@@ -981,7 +1290,33 @@ export default function InsightsPage() {
                       </div>
                     </div>
                     <div className="w-full space-y-4">
-                      <div className="border-b border-gray-200 pb-3">
+                      {/* Category Scores */}
+                      {fitScore.categories && fitScore.categories.length > 0 && (
+                        <div className="space-y-3 mb-4">
+                          <p className="text-sm font-semibold text-gray-700 mb-2">Category Breakdown</p>
+                          {fitScore.categories.map((category, idx) => (
+                            <div key={idx} className="relative group cursor-pointer">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-sm text-gray-700">{category.name}</span>
+                                <span className="text-sm font-semibold text-red-700">{category.score}%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2 relative">
+                                <div
+                                  className="bg-red-700 h-2 rounded-full transition-all group-hover:bg-red-800"
+                                  style={{ width: `${category.score}%` }}
+                                />
+                              </div>
+                              {/* Hover Tooltip */}
+                              <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
+                                <p className="font-semibold mb-1">{category.name}</p>
+                                <p className="text-gray-300">{category.reason}</p>
+                                <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-900 transform rotate-45" />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <div className="border-t border-gray-200 pt-3">
                         <p className="text-sm text-gray-600 mb-1">Skills Gaps</p>
                         <p className="text-base font-medium text-black">
                           {fitScore.skillsGaps}
@@ -1048,6 +1383,76 @@ export default function InsightsPage() {
                 Complete daily topics with tagged LeetCode questions and resources
               </p>
             </div>
+
+            {/* Interview Process Overview */}
+            <AnimatedScrollSection>
+              <div className="relative bg-white rounded-lg shadow-lg border border-gray-200 p-6 mb-6">
+                <h2 className="text-2xl font-bold text-gray-800 mb-6">Interview Process Overview</h2>
+                <div className="space-y-4">
+                  {[
+                    {
+                      step: 1,
+                      title: "Recruiter Call",
+                      duration: "30 minutes",
+                      details: "Initial screening and background check",
+                      tip: "Be ready to discuss your background and why you're interested in this role",
+                    },
+                    {
+                      step: 2,
+                      title: "Online Coding Assessment",
+                      duration: "120 minutes",
+                      details: "2-3 LeetCode medium-level problems",
+                      tip: "Medium difficulty problems focus on arrays, strings, and hash maps",
+                    },
+                    {
+                      step: 3,
+                      title: "Technical Coding Round",
+                      duration: "60 minutes",
+                      details: "Greedy algorithms and stack problems",
+                      tip: "Explain your approach, discuss trade-offs, and optimize your solution",
+                    },
+                    {
+                      step: 4,
+                      title: "System Design Round",
+                      duration: "60 minutes",
+                      details: "Scalable system design for real-world scenarios",
+                      tip: "Focus on trade-offs, scalability, and practical solutions",
+                    },
+                    {
+                      step: 5,
+                      title: "Behavioral Interview",
+                      duration: "30 minutes",
+                      details: "Leadership, teamwork, and problem-solving stories",
+                      tip: "Use STAR method, emphasize collaboration and growth",
+                    },
+                  ].map((process) => (
+                    <div
+                      key={process.step}
+                      className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="bg-red-700 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg flex-shrink-0">
+                          {process.step}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-lg font-bold text-gray-800">{process.title}</h3>
+                            <span className="text-sm text-gray-600 bg-gray-200 px-3 py-1 rounded-full">
+                              {process.duration}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-700 mb-2">{process.details}</p>
+                          <div className="bg-blue-50 border-l-4 border-blue-500 p-2 rounded">
+                            <p className="text-xs font-semibold text-blue-800 mb-1">💡 Tip:</p>
+                            <p className="text-xs text-blue-700">{process.tip}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </AnimatedScrollSection>
 
             {/* Study Plan Sections */}
             <div className="space-y-6">
@@ -1139,16 +1544,59 @@ export default function InsightsPage() {
           </div>
         )}
 
-        {/* Practice Questions */}
-        {activeTab === "Practice Questions" && (
+        {/* Mock Interview */}
+        {activeTab === "Mock Interview" && (
           <div className="space-y-6">
             {/* Header */}
             <div className="mb-6">
               <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                Practice Questions
+                Mock Interview
               </h1>
               <p className="text-gray-600">
-                Work through these tailored questions to master interview topics
+                Practice with AI-powered mock interviews to prepare for your upcoming interview
+              </p>
+            </div>
+
+            {/* Start Mock Interview Button */}
+            <AnimatedScrollSection>
+              <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-8 text-center">
+                <GlowingEffect
+                  variant="red"
+                  spread={40}
+                  glow={true}
+                  disabled={false}
+                  proximity={64}
+                  inactiveZone={0.01}
+                />
+                <div className="relative z-10">
+                  <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                    Ready to Start Your Mock Interview?
+                  </h2>
+                  <p className="text-gray-600 mb-6">
+                    Practice answering interview questions with AI-powered feedback
+                  </p>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      router.push("/interview");
+                    }}
+                    className="relative z-50 bg-red-700 text-white text-lg font-bold px-8 py-4 rounded-md hover:opacity-90 transition-opacity shadow-lg hover:cursor-pointer"
+                    style={{ pointerEvents: 'auto' }}
+                  >
+                    Start Mock Interview
+                  </button>
+                </div>
+              </div>
+            </AnimatedScrollSection>
+
+            {/* Practice Questions List */}
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">
+                Practice Questions
+              </h2>
+              <p className="text-gray-600 mb-4">
+                Review these questions before your mock interview
               </p>
             </div>
 
@@ -1187,7 +1635,7 @@ export default function InsightsPage() {
                     {question.title}
                   </h2>
                   <p className="text-gray-600 mb-4">{question.description}</p>
-                  <div className="mb-4">
+                  <div>
                     <h3 className="text-base font-semibold text-gray-800 mb-2">
                       Key Discussion Points
                     </h3>
@@ -1196,17 +1644,6 @@ export default function InsightsPage() {
                         <li key={idx}>{point}</li>
                       ))}
                     </ul>
-                  </div>
-                  <div className="flex gap-3">
-                    <button className="bg-red-700 text-white px-6 py-2 rounded-md font-medium hover:opacity-90 transition-opacity">
-                      Start Practice
-                    </button>
-                    <button
-                      onClick={() => handleSavePracticeQuestion(question.id)}
-                      className="bg-white/10 backdrop-blur-xl text-red-700 border border-red-700/50 px-6 py-2 rounded-md font-medium hover:bg-red-50/20 transition-colors"
-                    >
-                      Save for Later
-                    </button>
                   </div>
                     </div>
                   </div>
@@ -1230,91 +1667,115 @@ export default function InsightsPage() {
             </div>
 
             {/* Employee Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {peopleInRole.map((person, idx) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {peopleInRole.map((person, idx) => {
+                const linkedinUrl = person.waysToConnect.find((m) => m.includes("linkedin.com")) || "";
+                const email = person.waysToConnect.find((m) => m.includes("@") || m.startsWith("Email:")) || "";
+                const emailAddress = email.includes(": ") ? email.split(": ")[1] : email;
+                
+                return (
                 <AnimatedScrollSection key={idx}>
-                  <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
-                    <GlowingEffect
-                      variant="red"
-                      spread={40}
-                      glow={true}
-                      disabled={false}
-                      proximity={64}
-                      inactiveZone={0.01}
-                    />
-                    <div className="relative">
-                      <h2 className="text-xl font-bold text-gray-800 mb-1">
+                    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
+                      {/* Header */}
+                      <div className="mb-4">
+                        <h2 className="text-lg font-bold text-gray-900 mb-1">
                     {person.name}
                   </h2>
-                  <p className="text-lg font-bold text-red-700 mb-2">
+                        <p className="text-base font-bold text-red-800 mb-1">
                     {person.role}
                   </p>
-                  <p className="text-gray-500 text-sm mb-4">
-                    {person.yearsInRole} years in this role
+                        <p className="text-sm text-gray-500">
+                          Professional Connection
                   </p>
+                      </div>
 
+                      {/* Profile Section */}
                   <div className="border-t border-gray-200 pt-4 mb-4">
-                    <p className="text-sm font-semibold text-gray-800 mb-1">
-                      Background:
-                    </p>
-                    <p className="text-gray-600">{person.background}</p>
+                        <p className="text-sm font-semibold text-gray-900 mb-1">
+                          Profile:
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {person.background.includes("LinkedIn Profile:") 
+                            ? "Experienced professional who can speak to technical depth and work ethic"
+                            : person.background || "Professional connection at the company"}
+                        </p>
                   </div>
 
+                      {/* Outreach Section */}
                   <div className="border-t border-gray-200 pt-4 mb-4">
-                    <p className="text-sm font-semibold text-gray-800 mb-1">
-                      Interview Tip:
-                    </p>
-                    <p className="text-gray-600">{person.interviewTip}</p>
+                        <p className="text-sm font-semibold text-gray-900 mb-1">
+                          Outreach:
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {(() => {
+                            const storedData = localStorage.getItem("pipelineData");
+                            if (storedData) {
+                              try {
+                                const data: BackendPipelineResponse = JSON.parse(storedData);
+                                const companyName = data.company_name?.replace("The company name is ", "").replace(".", "") || 
+                                  data.job_data?.job_info?.company || "the company";
+                                return `Email or LinkedIn message - Reference for ${companyName} internship interview`;
+                              } catch (e) {
+                                return "Email or LinkedIn message - Reference for internship interview";
+                              }
+                            }
+                            return "Email or LinkedIn message - Reference for internship interview";
+                          })()}
+                        </p>
                   </div>
 
+                      {/* Contact Section */}
                   <div className="border-t border-gray-200 pt-4">
-                    <p className="text-sm font-semibold text-gray-800 mb-3">
-                      Ways to Connect:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {person.waysToConnect.map((method, methodIdx) => {
-                        // Check if this is a LinkedIn URL
-                        if (method.includes("linkedin.com") || method.includes("www.linkedin.com")) {
-                          const linkedinUrl = method.startsWith("http") ? method : `https://${method}`;
-                          return (
+                        <p className="text-sm font-semibold text-gray-900 mb-3">
+                          Contact
+                        </p>
+                        <div className="space-y-2">
+                          {linkedinUrl && (
                             <a
-                              key={methodIdx}
-                              href={linkedinUrl}
+                              href={linkedinUrl.startsWith("http") ? linkedinUrl : `https://${linkedinUrl}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="bg-white/10 backdrop-blur-xl text-gray-700 border border-gray-300/50 px-4 py-2 rounded-md text-sm hover:bg-gray-50/20 transition-colors"
+                              className="flex items-center gap-2 text-red-800 hover:text-red-900 transition-colors"
                             >
-                              LinkedIn
+                              <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                className="text-red-800"
+                              >
+                                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                              </svg>
+                              <span className="text-sm font-medium">View LinkedIn Profile</span>
                             </a>
-                          );
-                        } else if (method.includes("@") || method.startsWith("Email:")) {
-                          const email = method.includes(": ") ? method.split(": ")[1] : method;
-                          return (
+                          )}
+                          {emailAddress && (
                             <a
-                              key={methodIdx}
-                              href={`mailto:${email}`}
-                              className="bg-white/10 backdrop-blur-xl text-gray-700 border border-gray-300/50 px-4 py-2 rounded-md text-sm hover:bg-gray-50/20 transition-colors"
+                              href={`mailto:${emailAddress}`}
+                              className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
                             >
-                              {email}
+                              <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                <polyline points="22,6 12,13 2,6" />
+                              </svg>
+                              <span className="text-sm">{emailAddress}</span>
                             </a>
-                          );
-                        }
-                        
-                        return (
-                          <button
-                            key={methodIdx}
-                            className="bg-white/10 backdrop-blur-xl text-gray-700 border border-gray-300/50 px-4 py-2 rounded-md text-sm hover:bg-gray-50/20 transition-colors"
-                          >
-                            {method}
-                          </button>
-                        );
-                      })}
-                    </div>
+                          )}
                   </div>
                     </div>
                   </div>
                 </AnimatedScrollSection>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -1322,7 +1783,7 @@ export default function InsightsPage() {
         {/* Placeholder for other tabs */}
         {activeTab !== "Home" &&
           activeTab !== "7-Day Study Plan" &&
-          activeTab !== "Practice Questions" &&
+          activeTab !== "Mock Interview" &&
           activeTab !== "People in Role" && (
             <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
               <GlowingEffect
