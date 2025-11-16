@@ -77,6 +77,111 @@ export interface InsightsData {
 }
 
 // ============================================================================
+// BACKEND RESPONSE TYPES
+// ============================================================================
+
+interface BackendPipelineResponse {
+  company_name: string;
+  job_data: {
+    job_info: {
+      title: string;
+      company: string;
+      location: string;
+      seniority_level: string;
+      department_or_team: string;
+      job_url: string;
+    };
+    description: {
+      summary: string;
+      responsibilities: string[];
+      requirements: {
+        must_have: string[];
+        nice_to_have: string[];
+      };
+      skills: {
+        technical: string[];
+        soft: string[];
+        tools_and_technologies: string[];
+      };
+      compensation_and_benefits: {
+        salary_range: string;
+        equity: string;
+        bonus: string;
+        benefits: string[];
+      };
+    };
+  };
+  profile_data: {
+    user_info: {
+      name: string;
+      headline: string;
+      location: string;
+      connections: number;
+      avatar: string;
+      linkedin_url: string;
+    };
+    experience: Array<{
+      title: string;
+      company: string;
+      location: string;
+      start_date: string;
+      end_date: string;
+      description: string;
+    }>;
+    education: Array<{
+      school: string;
+      degree: string;
+      field: string;
+      start_year: string;
+      end_year: string;
+      description: string;
+    }>;
+    organizations: any[];
+    languages: any[];
+    projects: any[];
+    activity: any[];
+    certifications: any[];
+    volunteer_experience: any[];
+  };
+  fit_score: {
+    overall_fit_score: number;
+    categories: {
+      technical_skills_match: {
+        score: number;
+        reason: string;
+      };
+      experience_alignment: {
+        score: number;
+        reason: string;
+      };
+      education_background: {
+        score: number;
+        reason: string;
+      };
+      gpa_and_academics: {
+        score: number;
+        reason: string;
+      };
+      previous_company_experience: {
+        score: number;
+        reason: string;
+      };
+      leadership_and_involvement: {
+        score: number;
+        reason: string;
+      };
+    };
+  };
+  references: {
+    references: Array<{
+      name: string;
+      linkedin_url: string;
+      email: string | null;
+    }>;
+  };
+}
+
+// ============================================================================
 // MOCK DATA - Replace with API calls
 // ============================================================================
 
@@ -315,35 +420,152 @@ const MOCK_PEOPLE_IN_ROLE: Person[] = [
 ];
 
 // ============================================================================
-// API FUNCTIONS - Backend team should implement these endpoints
+// DATA MAPPING FUNCTIONS
 // ============================================================================
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+/**
+ * Map backend pipeline response to frontend InsightsData format
+ */
+function mapBackendDataToInsights(backendData: BackendPipelineResponse): InsightsData {
+  // Extract topics from job skills
+  const topics = [
+    ...(backendData.job_data?.description?.skills?.technical || []),
+    ...(backendData.job_data?.description?.skills?.tools_and_technologies || []),
+  ].filter((topic, index, self) => self.indexOf(topic) === index); // Remove duplicates
+
+  // Map interviewer intel from profile data
+  const profile = backendData.profile_data;
+  
+  // Calculate years of experience from start dates
+  let experienceYears = "Experience not available";
+  if (profile.experience && profile.experience.length > 0) {
+    const firstExp = profile.experience[0];
+    if (firstExp.start_date) {
+      const startYear = parseInt(firstExp.start_date.split(" ")[1] || new Date().getFullYear().toString());
+      const currentYear = new Date().getFullYear();
+      const years = currentYear - startYear;
+      experienceYears = years > 0 ? `${years}+ years` : "Recent experience";
+    } else {
+      experienceYears = `${profile.experience.length}+ positions`;
+    }
+  }
+  
+  // Extract technical specialties from experience titles
+  const technicalSpecialties = profile.experience
+    ?.slice(0, 3)
+    .map((exp) => exp.title)
+    .filter(Boolean)
+    .join(", ") || profile.user_info?.headline || "Not specified";
+  
+  // Use job skills for predicted question areas
+  const predictedQuestionAreas = topics.slice(0, 4).join(", ") || "General technical questions";
+  
+  // Build background summary
+  const backgroundSummary = profile.user_info?.headline || 
+    `${profile.user_info?.name || "Interviewer"}${profile.experience?.[0]?.company ? ` at ${profile.experience[0].company}` : ""}`;
+
+  const interviewerIntel: InterviewerIntel = {
+    yearsOfExperience: experienceYears,
+    technicalSpecialties: technicalSpecialties,
+    predictedQuestionAreas: predictedQuestionAreas,
+    backgroundSummary: backgroundSummary,
+  };
+
+  // Map fit score
+  const fitScoreCategories = backendData.fit_score?.categories || {};
+  const allReasons = Object.values(fitScoreCategories)
+    .map((cat: any) => cat.reason)
+    .filter(Boolean);
+  
+  const skillsGaps = allReasons
+    .filter((reason: string) => 
+      reason.toLowerCase().includes("gap") || 
+      reason.toLowerCase().includes("missing") ||
+      reason.toLowerCase().includes("lack")
+    )
+    .join(". ") || "No significant gaps identified";
+  
+  const recommendedImprovements = allReasons.join(". ") || "Continue building on your strengths";
+
+  const fitScore: FitScore = {
+    score: backendData.fit_score?.overall_fit_score || 0,
+    skillsGaps: skillsGaps,
+    recommendedImprovements: recommendedImprovements,
+  };
+
+  // Map company research
+  const jobData = backendData.job_data;
+  const companyName = backendData.company_name?.replace("The company name is ", "").replace(".", "") || jobData?.job_info?.company || "Company";
+  
+  const companyValues = jobData?.description?.summary || 
+    `${companyName} is looking for talented individuals to join their team.`;
+  
+  const hiringStyle = jobData?.description?.requirements?.must_have?.slice(0, 3).join(", ") || 
+    jobData?.description?.requirements?.nice_to_have?.slice(0, 3).join(", ") || 
+    "Not specified";
+  
+  const cultureSummary = jobData?.description?.summary || 
+    `Join ${companyName} for an exciting opportunity in ${jobData?.job_info?.location || "their team"}.`;
+  
+  const interviewPatterns = `Position: ${jobData?.job_info?.title || "Software Engineer"} | ` +
+    `Level: ${jobData?.job_info?.seniority_level || "Not specified"} | ` +
+    `Location: ${jobData?.job_info?.location || "Not specified"}`;
+
+  const companyResearch: CompanyResearch = {
+    companyValues: companyValues,
+    hiringStyle: hiringStyle,
+    cultureSummary: cultureSummary,
+    interviewPatterns: interviewPatterns,
+  };
+
+  // Map references to people in role
+  const peopleInRole: Person[] = (backendData.references?.references || []).map((ref) => ({
+    name: ref.name,
+    role: "Current Employee",
+    yearsInRole: 0, // Not available in backend response
+    background: ref.linkedin_url ? `LinkedIn Profile: ${ref.linkedin_url}` : "Employee at company",
+    interviewTip: "Reach out to learn more about the interview process and company culture",
+    waysToConnect: [
+      ref.linkedin_url || "",
+      ref.email ? `Email: ${ref.email}` : "",
+    ].filter(Boolean),
+  }));
+
+  return {
+    topics: topics.length > 0 ? topics : MOCK_TOPICS,
+    interviewerIntel,
+    fitScore,
+    companyResearch,
+    studyPlan: MOCK_STUDY_PLAN, // Keep mock data for now, can be enhanced later
+    practiceQuestions: MOCK_PRACTICE_QUESTIONS, // Keep mock data for now, can be enhanced later
+    peopleInRole: peopleInRole.length > 0 ? peopleInRole : MOCK_PEOPLE_IN_ROLE,
+  };
+}
 
 /**
- * Fetch all insights data from the backend
- * TODO: Backend team - implement GET /api/insights endpoint
+ * Get insights data from localStorage or return mock data
  */
-async function fetchInsightsData(): Promise<InsightsData> {
+function getInsightsData(): InsightsData {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/insights`);
-    if (!response.ok) {
-      throw new Error("Failed to fetch insights data");
+    const storedData = localStorage.getItem("pipelineData");
+    if (storedData) {
+      const backendData: BackendPipelineResponse = JSON.parse(storedData);
+      return mapBackendDataToInsights(backendData);
     }
-    return await response.json();
   } catch (error) {
-    console.error("Error fetching insights data:", error);
-    // Return mock data as fallback
-    return {
-      topics: MOCK_TOPICS,
-      interviewerIntel: MOCK_INTERVIEWER_INTEL,
-      fitScore: MOCK_FIT_SCORE,
-      companyResearch: MOCK_COMPANY_RESEARCH,
-      studyPlan: MOCK_STUDY_PLAN,
-      practiceQuestions: MOCK_PRACTICE_QUESTIONS,
-      peopleInRole: MOCK_PEOPLE_IN_ROLE,
-    };
+    console.error("Error parsing stored data:", error);
   }
+  
+  // Return mock data as fallback
+  return {
+    topics: MOCK_TOPICS,
+    interviewerIntel: MOCK_INTERVIEWER_INTEL,
+    fitScore: MOCK_FIT_SCORE,
+    companyResearch: MOCK_COMPANY_RESEARCH,
+    studyPlan: MOCK_STUDY_PLAN,
+    practiceQuestions: MOCK_PRACTICE_QUESTIONS,
+    peopleInRole: MOCK_PEOPLE_IN_ROLE,
+  };
 }
 
 /**
@@ -351,19 +573,8 @@ async function fetchInsightsData(): Promise<InsightsData> {
  * TODO: Backend team - implement POST /api/practice-questions/:id/save endpoint
  */
 async function savePracticeQuestion(questionId: string): Promise<void> {
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/practice-questions/${questionId}/save`,
-      {
-        method: "POST",
-      }
-    );
-    if (!response.ok) {
-      throw new Error("Failed to save practice question");
-    }
-  } catch (error) {
-    console.error("Error saving practice question:", error);
-  }
+  // Placeholder for future implementation
+  console.log("Saving practice question:", questionId);
 }
 
 // ============================================================================
@@ -401,10 +612,10 @@ export default function InsightsPage() {
 
   // Fetch data on component mount
   useEffect(() => {
-    const loadData = async () => {
+    const loadData = () => {
       setLoading(true);
       try {
-        const data = await fetchInsightsData();
+        const data = getInsightsData();
         setTopics(data.topics);
         setInterviewerIntel(data.interviewerIntel);
         setFitScore(data.fitScore);
@@ -561,6 +772,30 @@ export default function InsightsPage() {
                   <h2 className="text-xl font-bold text-black mb-4">
                     Company Research
                   </h2>
+                  {(() => {
+                    const storedData = localStorage.getItem("pipelineData");
+                    if (storedData) {
+                      try {
+                        const data: BackendPipelineResponse = JSON.parse(storedData);
+                        const companyName = data.company_name?.replace("The company name is ", "").replace(".", "") || 
+                          data.job_data?.job_info?.company || "";
+                        const jobTitle = data.job_data?.job_info?.title || "";
+                        if (companyName || jobTitle) {
+                          return (
+                            <div className="mb-4 pb-4 border-b border-gray-200">
+                              <p className="text-sm text-gray-600 mb-1">Position</p>
+                              <p className="text-lg font-bold text-red-700">
+                                {jobTitle} {companyName ? `at ${companyName}` : ""}
+                              </p>
+                            </div>
+                          );
+                        }
+                      } catch (e) {
+                        // Ignore parsing errors
+                      }
+                    }
+                    return null;
+                  })()}
               {companyResearch ? (
                 <div className="space-y-4">
                   <div className="border-b border-gray-200 pb-3">
@@ -614,6 +849,49 @@ export default function InsightsPage() {
                     <h2 className="text-xl font-bold text-black mb-4">
                       Interviewer Intel
                     </h2>
+                    {(() => {
+                      const storedData = localStorage.getItem("pipelineData");
+                      if (storedData) {
+                        try {
+                          const data: BackendPipelineResponse = JSON.parse(storedData);
+                          const interviewer = data.profile_data?.user_info;
+                          if (interviewer?.name || interviewer?.avatar) {
+                            return (
+                              <div className="mb-4 pb-4 border-b border-gray-200 flex items-center gap-3">
+                                {interviewer.avatar && (
+                                  <img
+                                    src={interviewer.avatar}
+                                    alt={interviewer.name || "Interviewer"}
+                                    className="w-12 h-12 rounded-full object-cover"
+                                  />
+                                )}
+                                <div>
+                                  <p className="text-base font-bold text-red-700">
+                                    {interviewer.name || "Interviewer"}
+                                  </p>
+                                  {interviewer.headline && (
+                                    <p className="text-sm text-gray-600">{interviewer.headline}</p>
+                                  )}
+                                  {interviewer.linkedin_url && (
+                                    <a
+                                      href={interviewer.linkedin_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-xs text-blue-600 hover:underline"
+                                    >
+                                      View LinkedIn Profile
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          }
+                        } catch (e) {
+                          // Ignore parsing errors
+                        }
+                      }
+                      return null;
+                    })()}
                 {interviewerIntel ? (
                   <div className="space-y-4">
                     <div className="border-b border-gray-200 pb-3">
@@ -994,14 +1272,43 @@ export default function InsightsPage() {
                       Ways to Connect:
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {person.waysToConnect.map((method, methodIdx) => (
-                        <button
-                          key={methodIdx}
-                          className="bg-white/10 backdrop-blur-xl text-gray-700 border border-gray-300/50 px-4 py-2 rounded-md text-sm hover:bg-gray-50/20 transition-colors"
-                        >
-                          {method}
-                        </button>
-                      ))}
+                      {person.waysToConnect.map((method, methodIdx) => {
+                        // Check if this is a LinkedIn URL
+                        if (method.includes("linkedin.com") || method.includes("www.linkedin.com")) {
+                          const linkedinUrl = method.startsWith("http") ? method : `https://${method}`;
+                          return (
+                            <a
+                              key={methodIdx}
+                              href={linkedinUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="bg-white/10 backdrop-blur-xl text-gray-700 border border-gray-300/50 px-4 py-2 rounded-md text-sm hover:bg-gray-50/20 transition-colors"
+                            >
+                              LinkedIn
+                            </a>
+                          );
+                        } else if (method.includes("@") || method.startsWith("Email:")) {
+                          const email = method.includes(": ") ? method.split(": ")[1] : method;
+                          return (
+                            <a
+                              key={methodIdx}
+                              href={`mailto:${email}`}
+                              className="bg-white/10 backdrop-blur-xl text-gray-700 border border-gray-300/50 px-4 py-2 rounded-md text-sm hover:bg-gray-50/20 transition-colors"
+                            >
+                              {email}
+                            </a>
+                          );
+                        }
+                        
+                        return (
+                          <button
+                            key={methodIdx}
+                            className="bg-white/10 backdrop-blur-xl text-gray-700 border border-gray-300/50 px-4 py-2 rounded-md text-sm hover:bg-gray-50/20 transition-colors"
+                          >
+                            {method}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                     </div>

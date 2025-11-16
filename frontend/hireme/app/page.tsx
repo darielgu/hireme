@@ -38,43 +38,70 @@ export default function Home() {
     }
   };
 
-  // Handle loading stage transitions
+  // Handle loading stage transitions - cycle through stages continuously while loading
   useEffect(() => {
-    if (!isLoading) return;
+    if (!isLoading) {
+      return;
+    }
 
+    // Cycle through stages continuously
+    const stageInterval = setInterval(() => {
+      setLoadingStage((prev) => {
+        if (prev === 0) return 1;
+        if (prev === 1) return 2;
+        if (prev === 2) return 3;
+        return 0;
+      });
+    }, 3000); // Change stage every 3 seconds
+
+    // Cleanup interval when loading stops
+    return () => {
+      clearInterval(stageInterval);
+    };
+  }, [isLoading]);
+
+  const handleGetInsights = async () => {
+    if (!resumeFile || !jobDescription || !linkedinUrl) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    setIsLoading(true);
     setLoadingStage(0);
 
-    // Stage 0: Laptop to Database (3 seconds)
-    const stage0Timeout = setTimeout(() => {
-      setLoadingStage(1);
-    }, 3000);
+    try {
+      const formData = new FormData();
+      formData.append("file", resumeFile);
+      formData.append("jobUrl", jobDescription);
+      formData.append("linkedin", linkedinUrl);
 
-    // Stage 1: LinkedIn to Laptop (3 seconds)
-    const stage1Timeout = setTimeout(() => {
-      setLoadingStage(2);
-    }, 6000);
+      const response = await fetch("http://127.0.0.1:8000/pipeline", {
+        method: "POST",
+        body: formData,
+      });
 
-    // Stage 2: Parsing information (2 seconds)
-    const stage2Timeout = setTimeout(() => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Store the data in localStorage for the insights page
+      localStorage.setItem("pipelineData", JSON.stringify(data));
+      
+      // Set final stage before navigating
       setLoadingStage(3);
-    }, 8000);
-
-    // Stage 3: Creating plan (2 seconds)
-    const stage3Timeout = setTimeout(() => {
-      router.push("/insights");
-    }, 10000);
-
-    // Cleanup
-    return () => {
-      clearTimeout(stage0Timeout);
-      clearTimeout(stage1Timeout);
-      clearTimeout(stage2Timeout);
-      clearTimeout(stage3Timeout);
-    };
-  }, [isLoading, router]);
-
-  const handleGetInsights = () => {
-    setIsLoading(true);
+      
+      // Navigate to insights page after showing completion
+      setTimeout(() => {
+        setIsLoading(false);
+        router.push("/insights");
+      }, 1000);
+    } catch (error) {
+      console.error("Error fetching insights:", error);
+      alert("Failed to fetch insights. Please try again.");
+      setIsLoading(false);
+    }
   };
 
   // Loading Screen
