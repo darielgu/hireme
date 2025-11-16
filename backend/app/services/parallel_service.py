@@ -519,7 +519,9 @@ Scoring guidelines:
             company_name
         }. If still there is not enough context take your best guess at what leetcode problems the intervier could ask based on the kind of work {
             company_name
-        } does.Return ONLY valid JSON.
+        } does.
+        """
+        prompt += """Return ONLY valid JSON.
         Format:
         [
         {
@@ -549,7 +551,7 @@ Scoring guidelines:
             ],
             temperature=0,
         )
-        print("raw leetcode response:", response.choices[0].message.content)  # type: ignore
+
         return json.loads(response.choices[0].message.content)  # type: ignore
 
     def create_interview_questions(
@@ -787,7 +789,7 @@ def test_run_all():
         }
     )
     interview_questions = ps.create_interview_questions(job_data, profile_data)  # type: ignore
-    # leetcode_problems = ps.get_leetcode(company_data, company_name)  # type: ignore
+    leetcode_problems = ps.get_leetcode(company_data, company_name)  # type: ignore
 
     run_output = {
         "company_name": company_name,
@@ -796,20 +798,12 @@ def test_run_all():
         "company_data": company_data,
         "fit_score": fit_score,
         "references": references,
-        # "leetcode_problems": leetcode_problems,
+        "leetcode_problems": leetcode_problems,
         "cheat_sheet": cheat_sheet,
         "questions": interview_questions,
     }
 
     save_run(run_output, filename="test_runs.json")
-
-
-def test_get_leetcode():
-    ps = ParallelService()  # type: ignore
-    company_data = {"leetcode_topics": ["arrays", "strings", "dynamic programming"]}
-    company_name = "Google"
-    leetcode_problems = ps.get_leetcode(company_data, company_name)
-    print("output: ", leetcode_problems)
 
 
 def save_run(run_output, filename="runs.json"):
@@ -832,4 +826,4 @@ def save_run(run_output, filename="runs.json"):
 
 
 if __name__ == "__main__":
-    test_get_leetcode()
+    test_run_all()

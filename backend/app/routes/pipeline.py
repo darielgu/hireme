@@ -1,4 +1,3 @@
-import threading
 from concurrent.futures import ThreadPoolExecutor
 
 from app.services.parallel_service import ParallelService
@@ -37,6 +36,7 @@ async def create_pipeline(
     parallel = ParallelService()
     with ThreadPoolExecutor() as executor:
         # get the company name and job data in parallel
+        # future_company_data = executor.submit(parallel.company_research, jobUrl)
         future_company_name = executor.submit(parallel.extract_company_name, jobUrl)
         future_job_data = executor.submit(parallel.search_job_description, jobUrl)
         company_name = future_company_name.result()
@@ -46,12 +46,23 @@ async def create_pipeline(
             parallel.scrape_linkedin_profile, linkedin
         )
         future_fit_score = executor.submit(
-            parallel.generate_fit_score, job_data, userData
+            parallel.generate_fit_score,
+            job_data,
+            userData,  # type: ignore
         )  # type: ignore
         references = executor.submit(parallel.find_references, company_name)
         questions = executor.submit(
-            parallel.create_interview_questions, job_data, userData
+            parallel.create_interview_questions,
+            job_data,
+            userData,  # type: ignore
         )  # type: ignore
+        # company_data = future_company_data.result()
+        # future_leetcode_problems = executor.submit(
+        #     parallel.get_leetcode,
+        #     company_data,  # type: ignore
+        #     company_name,
+        # )
+        # leetcode_problems = future_leetcode_problems.result()
 
         interviewer_data = furture_interviewer_data.result()
         fit_score = future_fit_score.result()
@@ -65,16 +76,19 @@ async def create_pipeline(
         "fit_score": fit_score,
         "references": references,
         "questions": questions,
+        # "leetcode_problems": leetcode_problems,
     }
     cheat_sheet = parallel.cheat_sheet(temp_data)
     returnOut = {
         "company_name": company_name,
+        # "company_data": company_data,
         "job_data": job_data,
         "profile_data": interviewer_data,
         "fit_score": fit_score,
         "references": references,
         "questions": questions,
         "cheat_sheet": cheat_sheet,
+        # "leetcode_problems": leetcode_problems,
     }
 
     return returnOut
