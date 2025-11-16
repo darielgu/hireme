@@ -6,23 +6,74 @@ import { Waves } from "@/components/ui/waves";
 import { AIVoiceInput } from "@/components/ui/ai-voice-input";
 import { VoicePoweredOrb } from "@/components/ui/voice-powered-orb";
 
+interface Question {
+  question: string;
+}
+
+interface BackendPipelineResponse {
+  questions?: {
+    questions: Question[];
+  };
+}
+
 export default function InterviewPage() {
   const router = useRouter();
   const [isRecording, setIsRecording] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const [question, setQuestion] = useState("Tell me about yourself.");
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const recognitionRef = useRef<any>(null);
-  const synthRef = useRef<SpeechSynthesis | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const lastResultIndexRef = useRef<number>(0);
   const finalTranscriptRef = useRef<string>("");
 
+  // Load questions from localStorage
   useEffect(() => {
-    // Initialize speech recognition
+    try {
+      const storedData = localStorage.getItem("pipelineData");
+      if (storedData) {
+        const data: BackendPipelineResponse = JSON.parse(storedData);
+        if (data.questions?.questions && data.questions.questions.length > 0) {
+          setQuestions(data.questions.questions);
+        } else {
+          // Fallback to default questions
+          setQuestions([
+            { question: "Tell me about yourself." },
+            { question: "What are your greatest strengths?" },
+            { question: "Why do you want to work here?" },
+          ]);
+        }
+      } else {
+        // Fallback to default questions
+        setQuestions([
+          { question: "Tell me about yourself." },
+          { question: "What are your greatest strengths?" },
+          { question: "Why do you want to work here?" },
+        ]);
+      }
+    } catch (error) {
+      console.error("Error loading questions:", error);
+      setQuestions([
+        { question: "Tell me about yourself." },
+        { question: "What are your greatest strengths?" },
+        { question: "Why do you want to work here?" },
+      ]);
+    }
+  }, []);
+
+  // Initialize speech recognition
+  useEffect(() => {
     if (typeof window !== "undefined") {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      
+      const SpeechRecognition =
+        (window as any).SpeechRecognition ||
+        (window as any).webkitSpeechRecognition;
+
       if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
         recognition.continuous = true;
@@ -33,28 +84,26 @@ export default function InterviewPage() {
           let interimTranscript = "";
           let finalTranscript = "";
 
-          // Process only new results (starting from last processed index)
-          for (let i = Math.max(event.resultIndex, lastResultIndexRef.current); i < event.results.length; i++) {
+          for (
+            let i = Math.max(event.resultIndex, lastResultIndexRef.current);
+            i < event.results.length;
+            i++
+          ) {
             const result = event.results[i];
             const transcript = result[0].transcript;
-            
+
             if (result.isFinal) {
-              // Final result - add to final transcript
               finalTranscript += transcript + " ";
               lastResultIndexRef.current = i + 1;
             } else {
-              // Interim result - store for display
               interimTranscript += transcript;
             }
           }
 
-          // Update transcript state
           if (finalTranscript) {
-            // Add final transcript to the permanent transcript
             finalTranscriptRef.current += finalTranscript;
             setTranscript(finalTranscriptRef.current + interimTranscript);
           } else if (interimTranscript) {
-            // Show final transcript + current interim
             setTranscript(finalTranscriptRef.current + interimTranscript);
           }
         };
@@ -70,24 +119,70 @@ export default function InterviewPage() {
 
         recognitionRef.current = recognition;
       }
-
-      // Initialize speech synthesis
-      synthRef.current = window.speechSynthesis;
     }
 
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
-      if (synthRef.current) {
-        synthRef.current.cancel();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
       }
     };
   }, []);
 
+  // Load audio for current question
+  useEffect(() => {
+    if (questions.length > 0 && currentQuestionIndex < questions.length) {
+      loadAudioForQuestion(questions[currentQuestionIndex].question);
+    }
+  }, [currentQuestionIndex, questions]);
+
+  const loadAudioForQuestion = async (questionText: string) => {
+    setIsLoadingAudio(true);
+    try {
+      const response = await fetch(
+        `/api/audio?text=${encodeURIComponent(questionText)}`
+      );
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        setAudioUrl(url);
+      } else {
+        console.error("Failed to load audio");
+      }
+    } catch (error) {
+      console.error("Error loading audio:", error);
+    } finally {
+      setIsLoadingAudio(false);
+    }
+  };
+
+  const handlePlayPause = () => {
+    if (!audioRef.current && audioUrl) {
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+
+      audio.onplay = () => setIsPlaying(true);
+      audio.onpause = () => setIsPlaying(false);
+      audio.onended = () => {
+        setIsPlaying(false);
+        audioRef.current = null;
+      };
+    }
+
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+    }
+  };
+
   const handleVoiceStart = () => {
     if (recognitionRef.current && !isRecording) {
-      // Reset tracking variables and transcript
       lastResultIndexRef.current = 0;
       finalTranscriptRef.current = "";
       setTranscript("");
@@ -104,44 +199,83 @@ export default function InterviewPage() {
     setRecordingDuration(duration);
   };
 
-  const speakQuestion = (text: string) => {
-    if (synthRef.current) {
-      synthRef.current.cancel();
-      
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9;
-      utterance.pitch = 1;
-      utterance.volume = 1;
+  const handleSubmit = async () => {
+    if (!transcript.trim()) {
+      alert("Please record an answer before submitting.");
+      return;
+    }
 
-      setIsSpeaking(true);
+    if (questions.length === 0 || currentQuestionIndex >= questions.length) {
+      return;
+    }
 
-      utterance.onend = () => {
-        setIsSpeaking(false);
-      };
+    const currentQuestion = questions[currentQuestionIndex].question;
+    setIsSubmitting(true);
+    setFeedback(null);
 
-      synthRef.current.speak(utterance);
+    try {
+      const formData = new URLSearchParams();
+      formData.append("question", currentQuestion);
+      formData.append("answer", transcript);
+
+      const response = await fetch("http://localhost:8000/interview", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData.toString(),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setFeedback(data.response || "Feedback received");
+      } else {
+        const errorText = await response.text();
+        console.error("Error submitting answer:", errorText);
+        setFeedback("Error getting feedback. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting answer:", error);
+      setFeedback("Error getting feedback. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleStartInterview = () => {
-    speakQuestion(question);
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setTranscript("");
+      setFeedback(null);
+      finalTranscriptRef.current = "";
+      lastResultIndexRef.current = 0;
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      setIsPlaying(false);
+    }
   };
 
-  const questions = [
-    "Tell me about yourself.",
-    "What are your greatest strengths?",
-    "Why do you want to work here?",
-    "Tell me about a challenging project you worked on.",
-    "Where do you see yourself in 5 years?",
-  ];
-
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-
-  const handleSubmit = () => {
-    // Handle submit logic here
-    console.log("Submitting response:", transcript);
-    // You can add API call or navigation logic here
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      setTranscript("");
+      setFeedback(null);
+      finalTranscriptRef.current = "";
+      lastResultIndexRef.current = 0;
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      setIsPlaying(false);
+    }
   };
+
+  const currentQuestion =
+    questions.length > 0 && currentQuestionIndex < questions.length
+      ? questions[currentQuestionIndex].question
+      : "Loading question...";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 relative overflow-hidden">
@@ -173,10 +307,17 @@ export default function InterviewPage() {
         Back
       </button>
 
-      {/* Main Content - Column Layout */}
+      {/* Main Content */}
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-12">
         <div className="w-full max-w-4xl flex flex-col items-center gap-8">
-          {/* Orb in Middle - Centered, No Background Box */}
+          {/* Question Counter */}
+          {questions.length > 0 && (
+            <div className="text-sm text-gray-600">
+              Question {currentQuestionIndex + 1} of {questions.length}
+            </div>
+          )}
+
+          {/* Orb in Middle */}
           <div className="w-full h-[400px] flex items-center justify-center">
             <VoicePoweredOrb
               enableVoiceControl={isRecording}
@@ -191,34 +332,137 @@ export default function InterviewPage() {
             />
           </div>
 
-          {/* User Response - Wide Box Under Orb */}
-          <div className="w-full bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
-            {/* <h2 className="text-xl font-bold text-gray-800 mb-4"></h2> */}
-            <p className="text-base text-gray-700 mb-4">
-              {question}
-            </p>
-            <hr className="border-gray-300 mb-4" />
-            <div className="bg-white/50 rounded-lg p-4 min-h-[200px] mb-4">
-              <p className="text-gray-700 whitespace-pre-wrap">
-                {transcript || "Click the microphone to begin your response..."}
-              </p>
-            </div>
-            
-            {/* AI Voice Input Component */}
-            <div className="mb-4">
-              <AIVoiceInput 
-                onStart={handleVoiceStart}
-                onStop={handleVoiceStop}
-              />
+          {/* Question and Response Box */}
+          <div className="w-full bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6 space-y-4">
+            {/* Question Section */}
+            <div>
+              <h2 className="text-lg font-semibold text-gray-800 mb-3">
+                Question
+              </h2>
+              <p className="text-base text-gray-700 mb-4">{currentQuestion}</p>
+
+              {/* Audio Player */}
+              <div className="flex items-center gap-3 mb-4">
+                <button
+                  onClick={handlePlayPause}
+                  disabled={!audioUrl || isLoadingAudio}
+                  className="flex items-center justify-center w-12 h-12 bg-red-700 text-white rounded-full hover:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoadingAudio ? (
+                    <svg
+                      className="animate-spin h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                  ) : isPlaying ? (
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <rect x="6" y="4" width="4" height="16"></rect>
+                      <rect x="14" y="4" width="4" height="16"></rect>
+                    </svg>
+                  ) : (
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                  )}
+                </button>
+                <span className="text-sm text-gray-600">
+                  {isLoadingAudio
+                    ? "Loading audio..."
+                    : isPlaying
+                      ? "Playing..."
+                      : "Click to play question"}
+                </span>
+              </div>
             </div>
 
-            {/* Submit Button */}
-            <button
-              onClick={handleSubmit}
-              className="w-full bg-red-700 text-white px-6 py-3 rounded-md font-medium hover:opacity-90 transition-opacity hover:cursor-pointer"
-            >
-              Submit
-            </button>
+            <hr className="border-gray-300" />
+
+            {/* Answer Section */}
+            <div>
+              <h2 className="text-lg font-semibold text-gray-800 mb-3">
+                Your Answer
+              </h2>
+              <div className="bg-white/50 rounded-lg p-4 min-h-[200px] mb-4">
+                <p className="text-gray-700 whitespace-pre-wrap">
+                  {transcript || "Click the microphone to begin your response..."}
+                </p>
+              </div>
+
+              {/* AI Voice Input Component */}
+              <div className="mb-4">
+                <AIVoiceInput onStart={handleVoiceStart} onStop={handleVoiceStop} />
+              </div>
+            </div>
+
+            {/* Feedback Section */}
+            {feedback && (
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 className="text-sm font-semibold text-blue-900 mb-2">
+                  Feedback
+                </h3>
+                <p className="text-sm text-blue-800 whitespace-pre-wrap">
+                  {feedback}
+                </p>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={handlePreviousQuestion}
+                disabled={currentQuestionIndex === 0}
+                className="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-md font-medium hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={!transcript.trim() || isSubmitting}
+                className="flex-1 bg-red-700 text-white px-6 py-3 rounded-md font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Submitting..." : "Submit Answer"}
+              </button>
+              <button
+                onClick={handleNextQuestion}
+                disabled={currentQuestionIndex >= questions.length - 1}
+                className="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-md font-medium hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
       </main>

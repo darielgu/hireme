@@ -95,7 +95,7 @@ async def create_pipeline(
 
 
 @router.post("/interview")
-async def interview_dialogue(question: str, answer: str):
+async def interview_dialogue(question: str = Form(...), answer: str = Form(...)):
     parallel = ParallelService()
     response = parallel.interview_dialogue(question, answer)
 
