@@ -13,7 +13,7 @@ export default function Home() {
   const [jobDescription, setJobDescription] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingStage, setLoadingStage] = useState(0); // 0: laptop->db, 1: linkedin->laptop, 2: parsing, 3: creating plan
+  const [loadingStage, setLoadingStage] = useState(0); // 0: laptop->db, 1: linkedin->laptop, 2: parsing, 3: creating plan, 4: searching web, 5: calling sam altman
   
   const words = ["hired", "jobs", "prepared"];
 
@@ -50,6 +50,8 @@ export default function Home() {
         if (prev === 0) return 1;
         if (prev === 1) return 2;
         if (prev === 2) return 3;
+        if (prev === 3) return 4;
+        if (prev === 4) return 5;
         return 0;
       });
     }, 3000); // Change stage every 3 seconds
@@ -141,8 +143,8 @@ export default function Home() {
                         key={i}
                         initial={{ x: 0, y: 0, opacity: 0 }}
                         animate={{
-                          x: [0, 280, 280],
-                          y: [0, -20, -20],
+                          x: [0, 237, 237],
+                          y: [0, -10, -10],
                           opacity: [0, 1, 0],
                         }}
                         transition={{
@@ -241,7 +243,7 @@ export default function Home() {
                         initial={{ x: 0, y: 0, opacity: 0 }}
                         animate={{
                           x: [0, 0, 0],
-                          y: [0, 120, 120],
+                          y: [0, 125, 125],
                           opacity: [0, 1, 0],
                         }}
                         transition={{
@@ -408,6 +410,115 @@ export default function Home() {
                         repeat: Infinity,
                       }}
                       className="w-2 h-2 bg-red-700 rounded-full"
+                    />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Stage 4: Searching Web */}
+            {loadingStage === 4 && (
+              <motion.div
+                key="stage4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-center"
+              >
+                <div className="mb-8">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                    className="inline-block"
+                  >
+                    <svg
+                      width="80"
+                      height="80"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="text-blue-600"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                    </svg>
+                  </motion.div>
+                </div>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">
+                  Searching the web for company insights...
+                </h2>
+                <div className="flex justify-center gap-1 mt-4">
+                  {[0, 1, 2].map((i) => (
+                    <motion.div
+                      key={i}
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{
+                        duration: 0.6,
+                        delay: i * 0.2,
+                        repeat: Infinity,
+                      }}
+                      className="w-2 h-2 bg-blue-600 rounded-full"
+                    />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Stage 5: Calling Sam Altman */}
+            {loadingStage === 5 && (
+              <motion.div
+                key="stage5"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-center"
+              >
+                <div className="mb-8">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    className="inline-block"
+                  >
+                    <svg
+                      width="80"
+                      height="80"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className="text-green-600"
+                    >
+                      {/* OpenAI Logo - Stylized O */}
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                      <path
+                        d="M12 4C7.58 4 4 7.58 4 12s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8z"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        fill="none"
+                      />
+                      <path
+                        d="M8 12c0-2.21 1.79-4 4-4s4 1.79 4 4"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        fill="none"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </motion.div>
+                </div>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">
+                  Calling Sam Altman...
+                </h2>
+                <div className="flex justify-center gap-1 mt-4">
+                  {[0, 1, 2].map((i) => (
+                    <motion.div
+                      key={i}
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{
+                        duration: 0.6,
+                        delay: i * 0.2,
+                        repeat: Infinity,
+                      }}
+                      className="w-2 h-2 bg-green-600 rounded-full"
                     />
                   ))}
                 </div>
