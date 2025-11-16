@@ -197,6 +197,32 @@ interface BackendPipelineResponse {
       email: string | null;
     }>;
   };
+  cheat_sheet?: {
+    speakPoints: string[];
+    companyMustKnows: string[];
+    recentNews: string[];
+    peopleExperience: Array<{
+      name: string;
+      role: string;
+      interviewTip: string;
+    }>;
+    leetcodeTopics: string[];
+    interviewerIntel: {
+      technicalSpecialties: string[];
+      affiliations: string[];
+      backgroundSummary: string;
+    };
+    fitScoreSummary: {
+      overall: number;
+      skillsGaps: string[];
+      recommendedImprovements: string[];
+    };
+  };
+  questions?: {
+    questions: Array<{
+      question: string;
+    }>;
+  };
 }
 
 // ============================================================================
@@ -887,8 +913,7 @@ export default function InsightsPage() {
         {activeTab === "Home" && (
           <div className="space-y-6">
             {/* Company Research */}
-            <AnimatedScrollSection>
-              <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
+            <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
                 <GlowingEffect
                   variant="red"
                   spread={40}
@@ -1251,11 +1276,9 @@ export default function InsightsPage() {
                   })()}
                 </div>
               </div>
-            </AnimatedScrollSection>
 
             {/* Two Column Layout */}
-            <AnimatedScrollSection>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Interviewer Intel */}
                 <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
                   <GlowingEffect
@@ -1587,11 +1610,9 @@ export default function InsightsPage() {
                   </div>
                 </div>
               </div>
-            </AnimatedScrollSection>
 
             {/* Predicted Interview Topics */}
-            <AnimatedScrollSection>
-              <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
+            <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
                 <GlowingEffect
                   variant="red"
                   spread={40}
@@ -1616,7 +1637,301 @@ export default function InsightsPage() {
                   </div>
                 </div>
               </div>
-            </AnimatedScrollSection>
+
+            {/* Interview Cheat Sheet */}
+            {(() => {
+              const storedData = localStorage.getItem("pipelineData");
+              if (storedData) {
+                try {
+                  const data: BackendPipelineResponse = JSON.parse(storedData);
+                  const cheatSheet = data.cheat_sheet;
+                  if (cheatSheet) {
+                    return (
+                      <div className="relative bg-white/10 backdrop-blur-xl rounded-lg shadow-lg border border-white/20 p-6">
+                          <GlowingEffect
+                            variant="red"
+                            spread={40}
+                            glow={true}
+                            disabled={false}
+                            proximity={64}
+                            inactiveZone={0.01}
+                          />
+                          <div className="relative">
+                            <h2 className="text-xl font-bold text-black mb-4">
+                              Interview Cheat Sheet
+                            </h2>
+                            <div className="space-y-4">
+                              {/* Two Column Grid for Top Sections */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Speak Points */}
+                                {cheatSheet.speakPoints &&
+                                  cheatSheet.speakPoints.length > 0 && (
+                                    <div className="border-b border-gray-200 pb-4">
+                                      <p className="text-sm text-gray-600 mb-2 font-semibold">
+                                        Speak Points
+                                      </p>
+                                      <ul className="space-y-1.5">
+                                        {cheatSheet.speakPoints.map(
+                                          (point, idx) => (
+                                            <li
+                                              key={idx}
+                                              className="text-xs text-black flex items-start gap-2"
+                                            >
+                                              <span className="text-red-700 mt-1">
+                                                ✓
+                                              </span>
+                                              <span>{point}</span>
+                                            </li>
+                                          )
+                                        )}
+                                      </ul>
+                                    </div>
+                                  )}
+
+                                {/* Company Must Knows */}
+                                {cheatSheet.companyMustKnows &&
+                                  cheatSheet.companyMustKnows.length > 0 && (
+                                    <div className="border-b border-gray-200 pb-4">
+                                      <p className="text-sm text-gray-600 mb-2 font-semibold">
+                                        Company Must Knows
+                                      </p>
+                                      <ul className="space-y-1.5">
+                                        {cheatSheet.companyMustKnows.map(
+                                          (item, idx) => (
+                                            <li
+                                              key={idx}
+                                              className="text-xs text-black flex items-start gap-2"
+                                            >
+                                              <span className="text-red-700 mt-1">
+                                                ✓
+                                              </span>
+                                              <span>{item}</span>
+                                            </li>
+                                          )
+                                        )}
+                                      </ul>
+                                    </div>
+                                  )}
+
+                                {/* Recent News */}
+                                {cheatSheet.recentNews &&
+                                  cheatSheet.recentNews.length > 0 && (
+                                    <div className="border-b border-gray-200 pb-4">
+                                      <p className="text-sm text-gray-600 mb-2 font-semibold">
+                                        Recent News
+                                      </p>
+                                      <ul className="space-y-1.5">
+                                        {cheatSheet.recentNews.map(
+                                          (news, idx) => (
+                                            <li
+                                              key={idx}
+                                              className="text-xs text-black flex items-start gap-2"
+                                            >
+                                              <span className="text-gray-500 mt-1">
+                                                •
+                                              </span>
+                                              <span>{news}</span>
+                                            </li>
+                                          )
+                                        )}
+                                      </ul>
+                                    </div>
+                                  )}
+
+                                {/* LeetCode Topics */}
+                                {cheatSheet.leetcodeTopics &&
+                                  cheatSheet.leetcodeTopics.length > 0 && (
+                                    <div className="border-b border-gray-200 pb-4">
+                                      <p className="text-sm text-gray-600 mb-2 font-semibold">
+                                        LeetCode Topics
+                                      </p>
+                                      <div className="flex flex-wrap gap-2">
+                                        {cheatSheet.leetcodeTopics.map(
+                                          (topic, idx) => (
+                                            <span
+                                              key={idx}
+                                              className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-medium"
+                                            >
+                                              {topic}
+                                            </span>
+                                          )
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                              </div>
+
+                              {/* Reddit Tips */}
+                              {cheatSheet.peopleExperience &&
+                                cheatSheet.peopleExperience.length > 0 && (
+                                  <div className="border-b border-gray-200 pb-4">
+                                    <p className="text-sm text-gray-600 mb-3 font-semibold">
+                                      Reddit Tips
+                                    </p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      {cheatSheet.peopleExperience.map(
+                                        (person, idx) => (
+                                          <div
+                                            key={idx}
+                                            className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                                          >
+                                            <p className="text-xs text-gray-700 italic">
+                                              "{person.interviewTip}"
+                                            </p>
+                                          </div>
+                                        )
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+
+                              {/* Interviewer Intel */}
+                              {cheatSheet.interviewerIntel && (
+                                <div className="border-b border-gray-200 pb-4">
+                                  <p className="text-sm text-gray-600 mb-3 font-semibold">
+                                    Interviewer Intel
+                                  </p>
+                                  <div className="space-y-4">
+                                    {cheatSheet.interviewerIntel
+                                      .technicalSpecialties &&
+                                      cheatSheet.interviewerIntel
+                                        .technicalSpecialties.length > 0 && (
+                                        <div>
+                                          <p className="text-sm text-gray-600 mb-2">
+                                            Technical Specialties
+                                          </p>
+                                          <div className="flex flex-wrap gap-2">
+                                            {cheatSheet.interviewerIntel.technicalSpecialties.map(
+                                              (specialty, idx) => (
+                                                <span
+                                                  key={idx}
+                                                  className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-medium"
+                                                >
+                                                  {specialty}
+                                                </span>
+                                              )
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
+                                    {cheatSheet.interviewerIntel.affiliations &&
+                                      cheatSheet.interviewerIntel.affiliations
+                                        .length > 0 && (
+                                        <div>
+                                          <p className="text-sm text-gray-600 mb-2">
+                                            Affiliations
+                                          </p>
+                                          <div className="flex flex-wrap gap-2">
+                                            {cheatSheet.interviewerIntel.affiliations.map(
+                                              (affiliation, idx) => (
+                                                <span
+                                                  key={idx}
+                                                  className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-medium"
+                                                >
+                                                  {affiliation}
+                                                </span>
+                                              )
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
+                                    {cheatSheet.interviewerIntel
+                                      .backgroundSummary && (
+                                      <div>
+                                        <p className="text-sm text-gray-600 mb-1">
+                                          Background Summary
+                                        </p>
+                                        <p className="text-base font-medium text-black">
+                                          {
+                                            cheatSheet.interviewerIntel
+                                              .backgroundSummary
+                                          }
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Fit Score Summary */}
+                              {cheatSheet.fitScoreSummary && (
+                                <div>
+                                  <p className="text-sm text-gray-600 mb-3 font-semibold">
+                                    Fit Score Summary
+                                  </p>
+                                  <div className="space-y-4">
+                                    <div>
+                                      <p className="text-sm text-gray-600 mb-1">
+                                        Overall Score
+                                      </p>
+                                      <p className="text-base font-medium text-black">
+                                        {cheatSheet.fitScoreSummary.overall || 0}%
+                                      </p>
+                                    </div>
+                                    {cheatSheet.fitScoreSummary.skillsGaps &&
+                                      cheatSheet.fitScoreSummary.skillsGaps
+                                        .length > 0 && (
+                                        <div>
+                                          <p className="text-sm text-gray-600 mb-2">
+                                            Skills Gaps
+                                          </p>
+                                          <ul className="space-y-1.5">
+                                            {cheatSheet.fitScoreSummary.skillsGaps.map(
+                                              (gap, idx) => (
+                                                <li
+                                                  key={idx}
+                                                  className="text-xs text-black flex items-start gap-2"
+                                                >
+                                                  <span className="text-gray-500 mt-1">
+                                                    •
+                                                  </span>
+                                                  <span>{gap}</span>
+                                                </li>
+                                              )
+                                            )}
+                                          </ul>
+                                        </div>
+                                      )}
+                                    {cheatSheet.fitScoreSummary
+                                      .recommendedImprovements &&
+                                      cheatSheet.fitScoreSummary
+                                        .recommendedImprovements.length >
+                                        0 && (
+                                        <div>
+                                          <p className="text-sm text-gray-600 mb-2">
+                                            Recommended Improvements
+                                          </p>
+                                          <ul className="space-y-1.5">
+                                            {cheatSheet.fitScoreSummary.recommendedImprovements.map(
+                                              (improvement, idx) => (
+                                                <li
+                                                  key={idx}
+                                                  className="text-xs text-black flex items-start gap-2"
+                                                >
+                                                  <span className="text-red-700 mt-1">
+                                                    ✓
+                                                  </span>
+                                                  <span>{improvement}</span>
+                                                </li>
+                                              )
+                                            )}
+                                          </ul>
+                                        </div>
+                                      )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                    );
+                  }
+                } catch (e) {
+                  // Ignore parsing errors
+                }
+              }
+              return null;
+            })()}
           </div>
         )}
 
@@ -1938,20 +2253,37 @@ export default function InsightsPage() {
 
             {/* Employee Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {peopleInRole.map((person, idx) => {
-                const linkedinUrl =
-                  person.waysToConnect.find((m) =>
-                    m.includes("linkedin.com")
-                  ) || "";
-                const email =
-                  person.waysToConnect.find(
-                    (m) => m.includes("@") || m.startsWith("Email:")
-                  ) || "";
-                const emailAddress = email.includes(": ")
-                  ? email.split(": ")[1]
-                  : email;
+              {peopleInRole
+                .filter((person) => {
+                  const linkedinUrl =
+                    person.waysToConnect.find((m) =>
+                      m.includes("linkedin.com")
+                    ) || "";
+                  const email =
+                    person.waysToConnect.find(
+                      (m) => m.includes("@") || m.startsWith("Email:")
+                    ) || "";
+                  const emailAddress = email.includes(": ")
+                    ? email.split(": ")[1]
+                    : email;
+                  
+                  // Only show cards if there's at least one contact method
+                  return linkedinUrl || emailAddress;
+                })
+                .map((person, idx) => {
+                  const linkedinUrl =
+                    person.waysToConnect.find((m) =>
+                      m.includes("linkedin.com")
+                    ) || "";
+                  const email =
+                    person.waysToConnect.find(
+                      (m) => m.includes("@") || m.startsWith("Email:")
+                    ) || "";
+                  const emailAddress = email.includes(": ")
+                    ? email.split(": ")[1]
+                    : email;
 
-                return (
+                  return (
                   <AnimatedScrollSection key={idx}>
                     <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow">
                       {/* Header */}
