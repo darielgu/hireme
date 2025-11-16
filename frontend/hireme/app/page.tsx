@@ -540,6 +540,15 @@ export default function Home() {
         pointerSize={0.5}
       />
       
+      {/* Logo */}
+      <div className="absolute top-6 left-6 z-20">
+        <img
+          src="/hireme.png"
+          alt="HireMe Logo"
+          className="h-20 w-auto"
+        />
+      </div>
+      
       {/* Main Content */}
       <main className="relative z-10 flex min-h-screen items-center justify-center px-4 py-12">
         <div className="w-full max-w-2xl">
